@@ -1,0 +1,22 @@
+{
+ "name": "Emberdeep",
+ "short_name": "Emberdeep",
+ "description": "Real-time browser roguelite. 100 floors, 10 bosses, 5 classes.",
+ "start_url": "./",
+ "scope": "./",
+ "display": "fullscreen",
+ "background_color": "#17131d",
+ "theme_color": "#2f2548",
+ "icons": [
+  {
+   "src": "icon192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}

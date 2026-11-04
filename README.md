@@ -1,3 +1,5 @@
+<img src="icon512.png" width="128" height="128" alt="Emberdeep icon: an orange cat with a flame between its ears">
+
 # Emberdeep
 
 A real-time top-down roguelite with 100 floors and 10 bosses. It runs in the browser, and everything lives in one file.
@@ -32,7 +34,7 @@ Touch controls work on phones too.
 
 ## Editing
 
-There is no build step. Change `index.html` and refresh the page. Fonts load from Google Fonts, and everything else is in that file.
+There is no build step. Change `index.html` and refresh the page. Fonts load from Google Fonts, and the whole game is in that file. The icons, share image and web manifest sit beside it.
 
 ## Credits
 
