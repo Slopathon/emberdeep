@@ -1,0 +1,12 @@
+name = "emberdeep-relay"
+main = "worker.js"
+compatibility_date = "2025-06-01"
+[vars]
+ORIGINS = "https://slopathon.github.io"
+DEVORIGINS = "0"
+[[durable_objects.bindings]]
+name = "PARTY"
+class_name = "Party"
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Party"]
