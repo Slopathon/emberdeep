@@ -24,7 +24,7 @@ Pick a class in the Hearth, walk to The Deep, and go. Nothing saves between runs
 - Space: dash
 - Right click or Shift: blink
 - F: potion
-- T: auto attack, at reduced damage
+- T: auto attack
 - Tab: gear and powers
 - Q and E: zoom
 - Esc: pause
