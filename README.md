@@ -64,6 +64,8 @@ npx wrangler deploy
 
 Then put the `wss://` address it prints into the `RELAY` constant near the top of the script in `index.html`, for example `const RELAY='wss://emberrelay.example.com'`. The live game uses `wss://emberrelay.pawfectaddons.net`. Without a relay the game plays solo and the Rally Bell says multiplayer is not set up. For testing you can also add `?relay=wss://...` to the page address.
 
+Everyone in the Hearth shares one public channel on the relay (`/lobby`, up to 30 players), so players see each other walking around without being in a party. It sends position, name, class and cosmetics, and disconnects during runs or when the tab is hidden. Hosted parties are listed on the Rally Bell, and hosts can remove players. Players can opt out with "Hide me from the Hearth" in the Still Lantern settings, which also hides their party from the list.
+
 ## Tests
 
 ```bash

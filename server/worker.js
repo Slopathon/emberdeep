@@ -1,6 +1,6 @@
-const CODE=/^[A-HJ-NP-Z2-9]{5}$/,MAX=5,MSG=24576,IDLE=600000,RATE={h:240,c:90},BURST=2
+const LMAX=30,LMSG=1024,LRATE=10,LIP=6,CODE=/^[A-HJ-NP-Z2-9]{5}$/,MAX=5,MSG=24576,IDLE=600000,RATE={h:240,c:90},BURST=2
 const allow=(o,env)=>{if(!o)return false;const L=(env.ORIGINS||'https://slopathon.github.io').split(',').map(s=>s.trim());return L.includes(o)||(env.DEVORIGINS==='1'&&/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o))}
-export default{async fetch(req,env){const u=new URL(req.url),m=u.pathname.match(/^\/p\/([A-Z0-9]{5})$/);if(!m)return new Response('emberdeep relay',{status:u.pathname==='/'?200:404});if(!CODE.test(m[1]))return new Response('bad code',{status:400});if(req.headers.get('Upgrade')!=='websocket')return new Response('websocket only',{status:426});if(!allow(req.headers.get('Origin'),env))return new Response('origin',{status:403});const id=env.PARTY.idFromName(m[1]);return env.PARTY.get(id).fetch(req)}}
+export default{async fetch(req,env){const u=new URL(req.url);if(u.pathname==='/lobby'){if(req.headers.get('Upgrade')!=='websocket')return new Response('websocket only',{status:426});if(!allow(req.headers.get('Origin'),env))return new Response('origin',{status:403});return env.LOBBY.get(env.LOBBY.idFromName('hearth')).fetch(req)}const m=u.pathname.match(/^\/p\/([A-Z0-9]{5})$/);if(!m)return new Response('emberdeep relay',{status:u.pathname==='/'?200:404});if(!CODE.test(m[1]))return new Response('bad code',{status:400});if(req.headers.get('Upgrade')!=='websocket')return new Response('websocket only',{status:426});if(!allow(req.headers.get('Origin'),env))return new Response('origin',{status:403});const id=env.PARTY.idFromName(m[1]);return env.PARTY.get(id).fetch(req)}}
 export class Party{constructor(ctx,env){this.ctx=ctx;this.env=env;this.rl=new Map()}
 socks(){return this.ctx.getWebSockets().filter(w=>{const a=this.att(w);return a.id&&!a.dead&&w.readyState===1})}
 att(ws){try{return ws.deserializeAttachment()||{}}catch(e){return{}}}
@@ -16,3 +16,13 @@ async gone(ws){const a=this.att(ws);if(!a.id||a.dead)return;a.dead=1;try{ws.seri
 async webSocketClose(ws){await this.gone(ws)}
 async webSocketError(ws){await this.gone(ws)}
 async alarm(){for(const w of this.socks()){this.send(w,{t:'expired'});try{w.close(4009,'idle')}catch(e){}}}}
+export class Lobby{constructor(ctx,env){this.ctx=ctx;this.rl=new Map()}
+att(ws){try{return ws.deserializeAttachment()||{}}catch(e){return{}}}
+socks(){return this.ctx.getWebSockets().filter(w=>{const a=this.att(w);return a.id&&!a.dead&&w.readyState===1})}
+send(ws,s){try{ws.send(s)}catch(e){}}
+async fetch(req){const L=this.socks(),ip=req.headers.get('CF-Connecting-IP')||'',pair=new WebSocketPair(),[c,s]=Object.values(pair);this.ctx.acceptWebSocket(s);if(L.length>=LMAX||(ip&&L.filter(w=>this.att(w).ip===ip).length>=LIP)){this.send(s,JSON.stringify({t:'full'}));s.close(4003,'full');return new Response(null,{status:101,webSocket:c})}let n=1;for(const w of L){const a=this.att(w);n=Math.max(n,a.id+1,(a.nx||0)+1)}for(const w of L){const a=this.att(w);a.nx=n;try{w.serializeAttachment(a)}catch(e){}}s.serializeAttachment({id:n,nx:n,ip});this.send(s,JSON.stringify({t:'hello',id:n,peers:L.map(w=>this.att(w).id)}));const j=JSON.stringify({t:'join',id:n});for(const w of L)this.send(w,j);return new Response(null,{status:101,webSocket:c})}
+ok(id){const now=Date.now(),r=this.rl.get(id)||{t:now,n:0};r.n=Math.max(0,r.n-(now-r.t)/1000*LRATE);r.t=now;r.n++;this.rl.set(id,r);return r.n<=LRATE*2}
+webSocketMessage(ws,msg){const a=this.att(ws);if(!a.id||typeof msg!=='string'||msg.length>LMSG||!this.ok(a.id))return;let o;try{o=JSON.parse(msg)}catch(e){return}if(!o||typeof o.d!=='object'||!o.d)return;const out=JSON.stringify({f:a.id,d:o.d});for(const w of this.socks())if(w!==ws)this.send(w,out)}
+gone(ws){const a=this.att(ws);if(!a.id||a.dead)return;a.dead=1;try{ws.serializeAttachment(a)}catch(e){}try{ws.close(1000,'bye')}catch(e){}this.rl.delete(a.id);const j=JSON.stringify({t:'leave',id:a.id});for(const w of this.socks())if(w!==ws)this.send(w,j)}
+webSocketClose(ws){this.gone(ws)}
+webSocketError(ws){this.gone(ws)}}

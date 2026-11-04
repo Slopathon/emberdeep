@@ -10,6 +10,12 @@ DEVORIGINS = "0"
 [[durable_objects.bindings]]
 name = "PARTY"
 class_name = "Party"
+[[durable_objects.bindings]]
+name = "LOBBY"
+class_name = "Lobby"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["Party"]
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["Lobby"]
