@@ -1,6 +1,9 @@
 name = "emberdeep-relay"
 main = "worker.js"
 compatibility_date = "2025-06-01"
+workers_dev = false
+preview_urls = false
+routes = [{ pattern = "emberrelay.pawfectaddons.net", custom_domain = true }]
 [vars]
 ORIGINS = "https://slopathon.github.io"
 DEVORIGINS = "0"
