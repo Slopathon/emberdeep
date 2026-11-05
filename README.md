@@ -67,6 +67,16 @@ Up to 5 players. Ring the Rally Bell in the Hearth to host a party or join one w
 - If someone drops they have 5 seconds before their character leaves, and they can rejoin with the same code. If the host drops, the next player takes over and the room restarts from the last checkpoint.
 - The Trial Stone stays solo.
 
+## Sound
+
+Sounds come from two files beside `index.html`: `sfx.mp3` holds every sound effect and `amb.mp3` holds the ambience loops. Both load after your first click or key press.
+
+- Every sound picks a random take and pitch, so a sword swing has 3 samples at 3 pitches.
+- Sounds pan toward where they happen and get quieter far from the camera.
+- Each foe type has its own attack and death sounds, each boss has its own voice, and big attacks add layers and reverb.
+- Every zone and the Hearth have their own ambience. The Ambience slider in the settings sets its volume.
+- Until the files load, or if they fail, the old synth sounds play.
+
 ## Relay
 
 Co-op needs a small relay because GitHub Pages only serves static files. The relay is a Cloudflare Worker with one Durable Object per party in `server/`. It only forwards messages between players, caps parties at 5, caps message size, rate limits each connection, only accepts the allowed origins, closes idle parties and stores nothing.
@@ -94,12 +104,18 @@ cd tests
 node run.mjs
 ```
 
-This needs Node 20 or newer and Playwright with Chromium (`npm i playwright` then `npx playwright install chromium`). It runs everything in `tests/`: static checks, 200 seeds of generated rooms, solo regression, AFK checks, the relay, 5 player co-op through a local relay with and without added latency, failure cases, every animal power, phone layouts and performance. Run a single suite with `node run.mjs rooms`. Set `WRANGLER` to a wrangler binary to also test the real worker locally.
+This needs Node 20 or newer and Playwright with Chromium (`npm i playwright` then `npx playwright install chromium`). It runs everything in `tests/`: static checks, 200 seeds of generated rooms, solo regression, AFK checks, the relay, 5 player co-op through a local relay with and without added latency, failure cases, every animal power, sound loading and mixing, phone layouts and performance. Run a single suite with `node run.mjs rooms`. Set `WRANGLER` to a wrangler binary to also test the real worker locally.
 
 ## Editing
 
-There is no build step. Change `index.html` and refresh the page. Fonts load from Google Fonts, and the whole game is in that file. The icons, share image and web manifest sit beside it.
+There is no build step. Change `index.html` and refresh the page. Fonts load from Google Fonts, and the whole game is in that file. The icons, share image, web manifest and the two sound files sit beside it.
 
 ## Credits
 
 Particle sprites are from [Particle Pack](https://kenney.nl/assets/particle-pack) by Kenney, under CC0.
+
+Sound effects are under CC0. A few, like the bow string, the wizard bolt, wind and the campfire, are synthesized. The rest come from:
+
+- [Impact Sounds](https://kenney.nl/assets/impact-sounds), [Interface Sounds](https://kenney.nl/assets/interface-sounds), [RPG Audio](https://kenney.nl/assets/rpg-audio), [Sci-Fi Sounds](https://kenney.nl/assets/sci-fi-sounds) and [Digital Audio](https://kenney.nl/assets/digital-audio) by Kenney
+- [100 CC0 SFX](https://opengameart.org/content/100-cc0-sfx), [100 CC0 SFX #2](https://opengameart.org/content/100-cc0-sfx-2), [25 CC0 bang / firework SFX](https://opengameart.org/content/25-cc0-bang-firework-sfx), [40 CC0 water / splash / slime SFX](https://opengameart.org/content/40-cc0-water-splash-slime-sfx), [75 CC0 breaking / falling / hit sfx](https://opengameart.org/content/75-cc0-breaking-falling-hit-sfx), [80 CC0 creature SFX](https://opengameart.org/content/80-cc0-creature-sfx) and [80 CC0 RPG SFX](https://opengameart.org/content/80-cc0-rpg-sfx) by rubberduck on OpenGameArt
+- [RPG Sound Pack](https://opengameart.org/content/rpg-sound-pack) by artisticdude on OpenGameArt
