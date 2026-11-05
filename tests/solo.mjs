@@ -4,7 +4,7 @@ const J=s=>JSON.parse(s)
 async function fresh(url,o){const t=await open(url,o);await t.ev(BOT+';0');return t}
 async function sim(t,sec,stop='0',chunk=10){let r;for(let s=0;s<sec;s+=chunk){r=await t.ev(`__sim(${Math.min(chunk,sec-s)},()=>${stop})`);if(r!=='time')return r;await sleep(5)}return r}
 export async function run(o={}){const {server,url}=await serve(),bf=baseline();let bs=null;if(bf)bs=await serve(0,bf)
-const t=await fresh(url);check('solo: hearth loads with rAF alive',await alive(t)&&(await t.ev('inhub'))===true)
+const t=await fresh(url);check('solo: hearth loads with rAF alive',await alive(t,800)&&(await t.ev('inhub'))===true)
 const cls=['wizard','bow','rogue','priest','knight'],peaks={}
 for(const c of cls){let q,tries=0;for(;tries<3;tries++){await t.ev(`leavehub();hide();SET.cl='${c}';newgame('${c}');__b.mode='fight';__b.god=0;0`);await sim(t,900,'g.fl>=3');q=J(await t.ev('JSON.stringify({fl:g.fl,dead:!!g.dead,lv:g.lv,deaths:g.deaths,peak:__b.stats.peak})'));if(q.fl>=3)break}q.deaths+=' deaths';peaks[c]=q.peak;check(`solo: ${c} bot clears floors 1 and 2`,q.fl>=3,`reached floor ${q.fl}, level ${q.lv}, ${q.deaths}, attempt ${tries+1}`);await t.ev('__b.stats.peak=0;0')}
 console.log('peak player shots in solo bot play: '+JSON.stringify(peaks))

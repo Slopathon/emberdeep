@@ -66,6 +66,10 @@ Then put the `wss://` address it prints into the `RELAY` constant near the top o
 
 Everyone in the Hearth shares one public channel on the relay (`/lobby`, up to 30 players), so players see each other walking around without being in a party. It sends position, name, class and cosmetics, and disconnects during runs or when the tab is hidden. Hosted parties are listed on the Rally Bell, and hosts can remove players. Players can opt out with "Hide me from the Hearth" in the Still Lantern settings, which also hides their party from the list.
 
+## Dummy yard
+
+A test area for the planned items, behind the Hooded Stranger in the Hearth. It has 75 items (15 per class), a damage meter, and dummies for single target, area, chaining, piercing, moving, armored, on kill, status, execute and incoming damage testing. Items only exist in the yard for now and are not balanced. The password check is only there to keep players out by accident, so it sits in the page source.
+
 ## Tests
 
 ```bash
