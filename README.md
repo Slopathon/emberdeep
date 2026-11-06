@@ -22,14 +22,13 @@ Pick an animal in the Looking Pool by the Hearth. It is free and you can switch 
 
 | Animal | Power | Effect | Cooldown |
 |---|---|---|---|
-| Cat | Nine Lives | 6s where you cannot drop below 1 health | 45s |
-| Lion | Rage | 5s of 50% more damage, and you grow bigger | 30s |
-| Bear | Thick Hide | 6s of taking 60% less damage while healing 20% of your health | 40s |
-| Rabbit | Zoomies | 5s of 50% more speed with dashes refilling instantly | 30s |
-| Fox | Vanish | 4s where regular foes lose track of you. Your next hit deals triple damage and ends it | 30s |
-| Wolf | Howl | 6s of 30% faster attacks for you and allies within reach | 35s |
-| Owl | Night Watch | 4s where every foe and foe shot moves at half speed | 40s |
-| Turtle | Shell | 3s of no damage with shots bounced back, but you cannot move or attack. Dash, blink or a skill ends it | 30s |
+| Cat | Nine Lives | 6s where you cannot drop below 1 health | 112.5s |
+| Lion | Rage | 5s of 50% more damage, and you grow bigger | 60s |
+| Bear | Thick Hide | 6s of taking 60% less damage while healing 20% of your health | 80s |
+| Rabbit | Zoomies | 5s of 50% more speed with dashes refilling instantly | 60s |
+| Fox | Vanish | 4s where regular foes lose track of you. Your next hit deals triple damage and ends it | 60s |
+| Wolf | Howl | 6s of 30% faster attacks for you and allies within reach | 70s |
+| Turtle | Shell | 3s of no damage with shots bounced back, but you cannot move or attack. Dash, blink or a skill ends it | 60s |
 
 ## Controls
 
@@ -62,7 +61,7 @@ Up to 5 players. Ring the Rally Bell in the Hearth to host a party or join one w
 - Power and gem picks happen at the door after a clear. The door waits until everyone has picked, or 20 seconds.
 - Foe and boss health scale with party size. A party of one plays exactly like solo.
 - Roles: Wizard hits mark foes as controlled, Rogue deals more to controlled, stunned or chilled foes, Bow sweet spot hits mark a foe so the whole party deals more to it, Priest heals reach nearby allies, Knight draws foes and its raised shield stops shots aimed at allies behind it.
-- Animal powers run on the host. Howl reaches allies close by, Night Watch slows foes for the whole party, and foes look past a vanished fox to the next player.
+- Animal powers run on the host. Howl reaches allies close by, and foes look past a vanished fox to the next player.
 - A downed player is revived by an ally standing close for 3 seconds, or returns at the next room. The run ends when everyone is down.
 - If someone drops they have 5 seconds before their character leaves, and they can rejoin with the same code. If the host drops, the next player takes over and the room restarts from the last checkpoint.
 - The Trial Stone stays solo.
