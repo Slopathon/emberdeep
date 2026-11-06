@@ -15,7 +15,7 @@ const keys=J(await t.ev(`(()=>{leavehub();hide();newgame('wizard');__b.mode='afk
 const r=J(await t.ev(`(()=>{${SPY}const K=${JSON.stringify(keys)},miss=new Set(),quiet=[];let max=0;for(const k of K){for(const q in sl)delete sl[q];const n0=__sp.n.length;sfx(k,P.x+200,P.y);for(const[n]of __sp.n.slice(n0))if(!SM[n])miss.add(n);if(__sp.n.length===n0)quiet.push(k);max=Math.max(max,SV.length)}return JSON.stringify({miss:[...miss],quiet,max,n:K.length})})()`))
 check('sound: every recipe only plays clips that exist',!r.miss.length,r.miss.join(',')||r.n+' keys')
 check('sound: every sound key in the game plays samples',!r.quiet.length,r.quiet.slice(0,12).join(',')||lit.length+' literal keys')
-check('sound: the voice cap holds',r.max<=26,r.max+' voices at most')
+check('sound: the voice cap holds',r.max<=12,r.max+' voices at most')
 const bv=J(await t.ev(`(()=>{const o={};for(const z of[0,3,4,9]){for(const q in sl)delete sl[q];const n0=__sp.n.length;sfx('b'+z+'.atk',P.x,P.y);const a=__sp.n.slice(n0).map(x=>x[0]);for(const q in sl)delete sl[q];const n1=__sp.n.length;sfx('b'+z+'.meteor',P.x,P.y);o[z]={atk:a,big:__sp.n.slice(n1).map(x=>x[0])}}return JSON.stringify(o)})()`))
 check('sound: each boss has its own voice and big attacks add layers',new Set([0,3,4,9].map(z=>bv[z].atk[0])).size===4&&[0,3,4,9].every(z=>bv[z].big.length>bv[z].atk.length),JSON.stringify(bv))
 const sw=J(await t.ev(`(()=>{const s=[],o=__sp.o;smp=(n,v,q)=>{if(n==='swing'&&q)s.push(+(q.r||1).toFixed(2));return o(n,v,q)};for(let i=0;i<60;i++){for(const q in sl)delete sl[q];sfx('swing')}const vs=new Set();for(let i=0;i<60;i++){vs.add(SLV.swing);smp('swing',0)}smp=(n,v,q)=>{__sp.n.push([n,q&&q.p||0]);return o(n,v,q)};return JSON.stringify({r:[...new Set(s)].sort(),v:vs.size})})()`))

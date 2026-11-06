@@ -1,3 +1,4 @@
 server/.wrangler/
 node_modules/
 tests/node_modules/
+tests/balance/out/
