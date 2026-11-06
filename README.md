@@ -113,8 +113,9 @@ There is no build step. Change `index.html` and refresh the page. Fonts load fro
 
 Particle sprites are from [Particle Pack](https://kenney.nl/assets/particle-pack) by Kenney, under CC0.
 
-Sound effects are under CC0. A few, like the bow string, the wizard bolt, wind and the campfire, are synthesized. The rest come from:
+Sound effects are under CC0. A few, like the wizard bolt, wind and the campfire, are synthesized. The rest come from:
 
 - [Impact Sounds](https://kenney.nl/assets/impact-sounds), [Interface Sounds](https://kenney.nl/assets/interface-sounds), [RPG Audio](https://kenney.nl/assets/rpg-audio), [Sci-Fi Sounds](https://kenney.nl/assets/sci-fi-sounds) and [Digital Audio](https://kenney.nl/assets/digital-audio) by Kenney
 - [100 CC0 SFX](https://opengameart.org/content/100-cc0-sfx), [100 CC0 SFX #2](https://opengameart.org/content/100-cc0-sfx-2), [25 CC0 bang / firework SFX](https://opengameart.org/content/25-cc0-bang-firework-sfx), [40 CC0 water / splash / slime SFX](https://opengameart.org/content/40-cc0-water-splash-slime-sfx), [75 CC0 breaking / falling / hit sfx](https://opengameart.org/content/75-cc0-breaking-falling-hit-sfx), [80 CC0 creature SFX](https://opengameart.org/content/80-cc0-creature-sfx) and [80 CC0 RPG SFX](https://opengameart.org/content/80-cc0-rpg-sfx) by rubberduck on OpenGameArt
 - [RPG Sound Pack](https://opengameart.org/content/rpg-sound-pack) by artisticdude on OpenGameArt
+- [Bow Release (Bow and Arrow) 4](https://freesound.org/s/384917/) by Ali_6868 on Freesound
