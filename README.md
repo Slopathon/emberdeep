@@ -12,11 +12,11 @@ Pick a class in the Hearth, walk to The Deep, and go. Nothing saves between runs
 
 The Deep is slow and hard on purpose. Fights are won by reading attacks and moving, not by standing still.
 
-- Every foe type has one heavy attack that hits far harder than anything else it does, with a wind-up pose, a telegraph on the floor and a sound cue.
+- Every foe type has one heavy attack that hits far harder than anything else it does, with a telegraph on the floor, a sound cue and a wind-up pose that changes its outline and holds for the whole telegraph.
 - Some foes chase you down and some keep their distance. Their speeds vary more than 3x.
 - Hits push you back. Hazards never do, and knockback never throws you into lava.
 - Touching a miniboss or boss hurts at most once every 1.4 seconds, except the Hollow King.
-- Lower health means slower movement, down to 78% of full speed, and your character looks hurt.
+- Lower health means slower movement, down to 78% of full speed, and your character looks hurt: a plaster under 60% health, bandages, a hunch and a limp under 35%. Getting hit makes your hero recoil away from the blow with a short pale flash.
 - Levels need at least 1.5x more XP than before from level 5 on.
 - You can hold at most 40 power cards in a run. Level ups past the cap turn into gold. Card hands are no longer for sale.
 - Auto attack does full damage, but a hero who stands still dies on the first floor and an AFK hero never clears it. From floor 3 the floor itself drops telegraphed hazards on you, 2.5 times as often once you have stayed in one spot for 4 seconds.

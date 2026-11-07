@@ -19,7 +19,15 @@ ovk=null;return JSON.stringify(out,(k,v)=>typeof v==='number'?r2(v):v)},
 hero(cl,an,st,hp,now){if(!g||!run||P.cl0!==cl){leavehub();hide();newgame(cl);run.en.length=0;P.cl0=cl}ovk='art';const c=document.createElement('canvas');c.width=c.height=200;const x=c.getContext('2d'),old=cx;cos().an=an;P.vx=st==='walk'?200:0;P.vy=0;P.fl=st==='hurt'?0.2:0;P.rec=st==='atk'?1:0;P.lt=st==='atk'?run.t:-9;P.la=0;P.inv=0;P.anf=null;P.hp=S.mhp*hp;if(CUR)CUR.down=st==='down'?1:0;P.an={};cx=x;try{cx.translate(100-P.x,110-P.y);drawp(now)}finally{cx=old;if(CUR)CUR.down=0}return x.getImageData(0,0,200,200).data},
 herotest(cl,ANS){const iou=(a,b)=>{let i=0,u=0;for(let k=3;k<a.length;k+=4){const p=a[k]>40,q=b[k]>40;if(p&&q)i++;if(p||q)u++}return u?i/u:1},delta=(a,b)=>{let d=0,u=0;for(let k=0;k<a.length;k+=4){const p=a[k+3]>40,q=b[k+3]>40;if(!p&&!q)continue;u++;if(Math.abs(a[k]-b[k])+Math.abs(a[k+1]-b[k+1])+Math.abs(a[k+2]-b[k+2])+Math.abs(a[k+3]-b[k+3])>60)d++}return u?d/u:0},H=this.hero,N=200000
 const idle=H(cl,'cat','idle',1,N),wf=[];for(let i=0;i<8;i++)wf.push(H(cl,'cat','walk',1,N+i*125));let mn=1;for(let i=0;i<8;i++)for(let j=i+1;j<8;j++)mn=Math.min(mn,iou(wf[i],wf[j]))
-const o={walk:mn,atk:delta(idle,H(cl,'cat','atk',1,N)),hurt:delta(idle,H(cl,'cat','hurt',1,N)),down:iou(idle,H(cl,'cat','down',1,N)),cur:!!CUR,dmg:{}};for(const an of ANS)o.dmg[an]=delta(H(cl,an,'idle',1,N),H(cl,an,'idle',0.2,N));ovk=null;return JSON.stringify(o,(k,v)=>typeof v==='number'?r2(v):v)}}}
+const o={walk:mn,atk:delta(idle,H(cl,'cat','atk',1,N)),hurt:delta(idle,H(cl,'cat','hurt',1,N)),down:iou(idle,H(cl,'cat','down',1,N)),cur:!!CUR,dmg:{}};for(const an of ANS)o.dmg[an]=delta(H(cl,an,'idle',1,N),H(cl,an,'idle',0.2,N));ovk=null;return JSON.stringify(o,(k,v)=>typeof v==='number'?r2(v):v)},
+windtest(){setz(0);const Q=run.rm,x0=(Q.x0+Q.x1)/2,y0=Q.cy,W=260,N=200000,out={}
+const snap=e=>{const c=document.createElement('canvas');c.width=c.height=W;const x=c.getContext('2d'),old=cx,b0=e.boss;e.boss=1;cx=x;try{cx.translate(W/2-e.x,W*0.6-e.y);enart.mini(e,N)}finally{cx=old;e.boss=b0}return x.getImageData(0,0,W,W).data}
+const iou=(a,b)=>{let i=0,u=0;for(let k=3;k<a.length;k+=4){const p=a[k]>40,q=b[k]>40;if(p&&q)i++;if(p||q)u++}return u?i/u:1}
+const pin=()=>{P.x=x0;P.y=y0;P.vx=P.vy=0;P.hp=S.mhp;P.inv=999}
+for(const k of Object.keys(MB)){if(k==='dummy')continue;run.en.length=0;run.tele.length=0;run.shots.length=0;run.lava.length=0;pin();const e=mkmini(k,x0+150,y0);e.sleep=0;run.en.push(e);let live=0,bad=0,on=0,sh=null,sx=0,sy=0
+for(let i=0;i<1500;i++){run.t+=1/60;updenemies(1/60);updtele(1/60);pin();if(e.dead||e.hide)continue;const L=run.tele.some(t=>t.src===e),m=enart.ms(e,Math.hypot(P.x-e.x,P.y-e.y));if(L){live++;if(!m)bad++}if(m===1&&(L||e.state)){on++;if(on===8&&!sh){sh=snap(e);sx=e.x;sy=e.y}}}
+run.en.length=0;run.tele.length=0;let v=null;if(sh){const f=mkmini(k,sx,sy);f.sleep=0;f.cd=9;f.t1=9;f.mir=k==='mirrorglass'?1:0;if(k==='tideeel'){f.state='up';f.wt=2}v=iou(sh,snap(f))}out[k]={live,bad,iou:v}}
+ovk=null;run.en.length=0;run.tele.length=0;return JSON.stringify(out,(k,v)=>typeof v==='number'?r2(v):v)}}}
 const r2=v=>Math.round(v*100)/100
 export async function run(){const {server,url}=await serve(),t=await open(url,{viewport:{width:1280,height:800}}),res={zones:[],hero:{}}
 await t.ev(`(${kit})();0`)
@@ -43,6 +51,9 @@ check('art: the attack pose changes at least 12% of the hero',atk.every(x=>x.v>=
 check('art: the hurt pose changes at least 12% of the hero',hurt.every(x=>x.v>=0.12),f(hurt,x=>x.v<0.12))
 check('art: the down pose has a different silhouette, under 80% overlap with standing',down.every(x=>x.v<0.8),f(down,x=>x.v>=0.8))
 check('art: every class and animal looks damaged at 20% health, at least 8% of the hero changes',dmg.every(x=>x.v>=0.08),f(dmg.slice().sort((a,b)=>a.v-b.v),x=>x.v<0.08,6))
+const W=JSON.parse(await t.ev('__art.windtest()')),WK=Object.keys(W),wl=(bad,v)=>{const L=WK.filter(bad);return(L.length?L.length+' of '+WK.length+' fail: '+L:'all '+WK.length+' pass')+', '+WK.map(k=>k+' '+v(W[k])).join(', ')};res.wind=W
+check('art: every miniboss holds a wind-up pose for the whole telegraph of its attack',WK.every(k=>W[k].live>0&&!W[k].bad),wl(k=>!(W[k].live>0&&!W[k].bad),o=>o.bad+'/'+o.live))
+check('art: every miniboss wind-up changes its silhouette, under 85% overlap with idle',WK.every(k=>W[k].iou!=null&&W[k].iou<0.85),wl(k=>!(W[k].iou!=null&&W[k].iou<0.85),o=>o.iou))
 check('art: no page errors',!t.errs.length,t.errs.slice(0,2).join(' | '))
 if(process.env.ARTOUT)(await import('node:fs')).writeFileSync(process.env.ARTOUT,JSON.stringify(res))
 await t.close();await closeall();server.close();return res}
