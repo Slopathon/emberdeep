@@ -97,6 +97,8 @@ check('feedback 7: no enemy type sprays bullets, at most 4 shots in 14 s',!K.som
 const ch=K.filter(k=>o[k].dist<=100),kp=K.filter(k=>o[k].dist>=280)
 check('feedback 8: some enemies chase and some keep their distance',ch.length>=4&&kp.length>=4,'chase '+ch.join(',')+' | keep away '+kp.join(','))
 const sp=K.map(k=>o[k].spd).filter(v=>v>0);check('feedback 8: enemy speeds vary at least 3x',Math.max(...sp)>=3*Math.min(...sp),Math.min(...sp)+' to '+Math.max(...sp))
+const pk=J(await Q.P[0].ev(`(()=>{__go({cl:'priest',seed:5,tier:'mid',fl:5});startfloor();run.en.length=0;run.rsv=[];run.spawned=1e9;const H=[0,1,2,3].map(i=>{const e=mkmini('duskhound',P.x+400+i*60,P.y);e.pk=1;run.en.push(e);return e});kill(H[0]);const a=H[0].down;H[0].down-=4;kill(H[1]);const b=H[0].down;H[1].down-=4;kill(H[2]);kill(H[3]);__sim(0.2);return JSON.stringify({a,b,dead:H.filter(e=>e.dead).length})})()`))
+check('feedback 7: a Duskhound pack is finished by downing each hound within 6 s of the last',pk.a===6&&pk.b===6&&pk.dead===4,JSON.stringify(pk))
 if(O){const b=J(await O.P[0].ev(MINIPROBE({fl:12,sec:14}))),s0=K.reduce((a,k)=>a+(b[k]?b[k].shots:0),0),s1=K.reduce((a,k)=>a+o[k].shots,0)
 check('feedback 7: enemies fire at least 80% fewer shots than before',s1<=s0*0.2,s0+' shots before, '+s1+' now')}
 for(const t of [Q.P[0],...(O?O.P:[])])check('feedback 7: no JS errors in the enemy probe',!t.errs.length,t.errs.slice(0,2).join(' | '))
