@@ -6,14 +6,26 @@ A real-time top-down roguelite with 100 floors and 10 bosses. It runs in the bro
 
 Play it at https://slopathon.github.io/emberdeep/
 
-Pick a class in the Hearth, walk to The Deep, and go. Nothing saves between runs. Only your settings and cosmetics stick around.
+Pick a class in the Hearth, walk to The Deep, and go. Nothing saves between runs. Only your settings, cosmetics and career stats stick around.
+
+## Difficulty
+
+The Deep is slow and hard on purpose. Fights are won by reading attacks and moving, not by standing still.
+
+- Every foe type has one heavy attack that hits far harder than anything else it does, with a wind-up pose, a telegraph on the floor and a sound cue.
+- Some foes chase you down and some keep their distance. Their speeds vary more than 3x.
+- Hits push you back. Hazards never do, and knockback never throws you into lava.
+- Lower health means slower movement, down to 78% of full speed, and your character looks hurt.
+- Levels need at least 1.5x more XP than before from level 5 on.
+- You can hold at most 40 power cards in a run. Level ups past the cap turn into gold. Card hands are no longer for sale.
+- Auto attack does full damage, but a hero who stands still dies on the first floor and an AFK hero never clears it.
 
 ## Classes
 
 - Wizard, Controller: elements, zones and synergy chains
 - Bow, Marksman: hold to draw, release in the sweet spot
 - Rogue, Striker: build Edge up close and spend it before it fades
-- Priest, Support: heals run on Faith, and Faith comes from landing hits
+- Priest, Support: heals run on Faith, and Faith comes from landing hits. The Wide Grace card widens healing reach by 20% per rank, up to 5 ranks
 - Knight, Vanguard: the shield only stops what you are facing
 
 ## Animals
@@ -42,7 +54,7 @@ Pick an animal in the Looking Pool by the Hearth. It is free and you can switch 
 - T: auto attack
 - Tab: gear and powers
 - Q and E: zoom
-- Esc: pause
+- Esc: pause, run stats and your name (up to 12 characters)
 - E: use things in the Hearth
 - V: ping (in a party)
 
@@ -65,6 +77,12 @@ Up to 5 players. Ring the Rally Bell in the Hearth to host a party or join one w
 - A downed player is revived by an ally standing close for 3 seconds, or returns at the next room. The run ends when everyone is down.
 - If someone drops they have 5 seconds before their character leaves, and they can rejoin with the same code. If the host drops, the next player takes over and the room restarts from the last checkpoint.
 - The Trial Stone stays solo.
+- Duels: the host turns Duel on in the party panel and splits players into two teams. Party members then fight each other in an arena with no boss. The host runs the duel, priests only heal their own team, and only a teammate can revive you.
+- Party stats sync to everyone during the run and show on the end screen for the whole party.
+
+## Stats
+
+The end of every run shows its stats, and the pause menu has a stats tab for the run in progress. Career stats add up across runs in their own `emberdeep-career` key in local storage, and open from the Hearth settings. Runs themselves still never save, the dummy yard and duels do not count as runs, and there is no server database.
 
 ## Sound
 
@@ -74,6 +92,8 @@ Sounds come from two files beside `index.html`: `sfx.mp3` holds every sound effe
 - Sounds pan toward where they happen and get quieter far from the camera.
 - Each foe type has its own attack and death sounds, each boss has its own voice, and big attacks add layers and reverb.
 - Every zone and the Hearth have their own ambience. The Ambience slider in the settings sets its volume.
+- At most 12 sounds play at once. Routine sounds are quiet and throttled, so getting hurt is the loudest sound in the game and still plays when every voice is busy.
+- Foe attacks sound a rising cue when their telegraph appears, and boss telegraphs add a deeper layer.
 - Until the files load, or if they fail, the old synth sounds play.
 
 ## Relay
@@ -103,7 +123,16 @@ cd tests
 node run.mjs
 ```
 
-This needs Node 20 or newer and Playwright with Chromium (`npm i playwright` then `npx playwright install chromium`). It runs everything in `tests/`: static checks, 200 seeds of generated rooms, solo regression, AFK checks, the relay, 5 player co-op through a local relay with and without added latency, failure cases, every animal power, sound loading and mixing, phone layouts and performance. Run a single suite with `node run.mjs rooms`. Set `WRANGLER` to a wrangler binary to also test the real worker locally.
+This needs Node 20 or newer and Playwright with Chromium (`npm i playwright` then `npx playwright install chromium`). It runs everything in `tests/`: static checks, 200 seeds of generated rooms, solo regression, AFK checks, the relay, 5 player co-op through a local relay with and without added latency, failure cases, every animal power, auto attack range, sound loading and mixing, every item of tester feedback, the art, phone layouts and performance. Run a single suite with `node run.mjs rooms`. Set `WRANGLER` to a wrangler binary to also test the real worker locally. Run the rooms suite on its own, because the solo suite has timing checks.
+
+### Balance
+
+`tests/balance/` measures balance with bots of low, mid and high skill, plus auto attack only, standing still and AFK. Bots show relative numbers, so they can't prove a fight feels fair. A full pass takes hours, so it is not part of `node run.mjs`.
+
+- `node balance/matrix.mjs` reads what to test from the game's own tables (classes, items, powers, animals, foes, minibosses, zone foes, bosses and shops) and fails if any entry has no result. Its sections are `cap`, `zone`, `boss`, `entry`, `mb`, `elite`, `fw`, `heal`, `duel`, `builds`, `rush` and `party`. Pick some with `--sec=zone,boss`, set parallel browsers with `--par=10`, test another copy of the game with `--file=`, and rebuild `balance/coverage.md` from saved results with `--report`. The coverage file lists every entry and how it was tested.
+- `node balance/pacing.mjs` plays whole runs and records floor clear times, levels per floor, boss fight length and the first death, so a build can be compared to a baseline with `--file=`.
+- `node balance/duel.mjs` plays duel matchups. `node balance/spiral.mjs` checks that the low health slow and knockback don't cause death spirals or push heroes into hazards.
+- Results go to `balance/out/`, which git ignores.
 
 ## Editing
 
@@ -111,7 +140,7 @@ There is no build step. Change `index.html` and refresh the page. Fonts load fro
 
 ## Credits
 
-Particle sprites are from [Particle Pack](https://kenney.nl/assets/particle-pack) by Kenney, under CC0.
+All art is original. Heroes, animals, foes, bosses, effects, rooms, the Hearth and the UI icons are drawn by code in `index.html` with ink outlines and flat color, and cached as images while the game runs.
 
 Sound effects are under CC0. A few, like the wizard bolt, wind and the campfire, are synthesized. The rest come from:
 
