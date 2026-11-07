@@ -5,7 +5,9 @@ import {execSync} from 'node:child_process'
 import {serve,open,closeall,check,done,sleep,root} from './lib.mjs'
 import {relay} from './relay.mjs'
 import {BOT} from './bot.mjs'
-const J=s=>JSON.parse(s),CLS=['wizard','bow','rogue','priest','knight']
+import {pool} from './balance/pool.mjs'
+import {MINIPROBE} from './balance/probe.mjs'
+const J=s=>JSON.parse(s),CLS=['wizard','priest','rogue','bow','knight']
 async function until(fn,ms=8000,step=100){const t0=Date.now();for(;;){try{if(await fn())return true}catch(e){}if(Date.now()-t0>ms)return false;await sleep(step)}}
 const SPY=`(()=>{if(window.__sp)return;window.__sp={n:[],o:smp};smp=(n,v,o)=>{__sp.n.push([n,v,o&&o.pri||0,ac?ac.currentTime:0]);return __sp.o(n,v,o)}})();`
 function mainfile(){const f=path.join(os.tmpdir(),'emberdeep-main.html');try{fs.writeFileSync(f,execSync('git show 0b9b55a:index.html',{cwd:root,maxBuffer:1<<24}));return f}catch(e){return null}}
@@ -16,7 +18,7 @@ const src=fs.readFileSync(path.join(root,'index.html'),'utf8')
 const sh=J(await t.ev(`(()=>{leavehub();hide();newgame('wizard');g.gold=1e9;g.fl=12;const a=shop().map(q=>q.k),p=g.pend;const r=buy1('tome');return JSON.stringify({a,r,p0:p,p1:g.pend})})()`))
 check('feedback 11: the shop offers no card hands',!sh.a.includes('tome')&&!/Tome of power/.test(src),sh.a.join(','))
 check('feedback 11: buying a card hand does nothing',sh.r===false&&sh.p0===sh.p1)
-await t.ev(`hide();enterhub();SET.nm='Cat';saveset();0`);await sleep(200)
+await t.ev(`hide();enterhub();hide();SET.nm='Cat';saveset();0`);await sleep(200)
 await t.page.keyboard.press('Escape');await sleep(200)
 const has=await t.page.evaluate(()=>{const e=document.querySelector('#rnm');return e?{ml:e.maxLength,ov:window.__t.ev('ovk')}:null})
 check('feedback 12: Esc in the Hearth shows a name field',!!has&&has.ov==='hubset',JSON.stringify(has))
@@ -57,12 +59,47 @@ check('feedback 9: hurt cuts through a full voice list',hs.s0>=12&&hs.got>=2&&hs
 const cue=J(await t.ev(`(()=>{const L=__sp.n;run.tele=[];run.en.length=0;const n0=L.length;for(const q in sl)delete sl[q];tc(P.x,P.y,60,0.9,0.1,{x:P.x+200,y:P.y,atk:10,k:'grub'});updtele(0.016);const a=L.slice(n0).map(q=>q[0]);for(const q in sl)delete sl[q];const n1=L.length;updtele(0.016);const b=L.slice(n1).length;run.tele=[];for(const q in sl)delete sl[q];const n2=L.length;tc(P.x,P.y,60,1.2,0.1,{x:P.x+200,y:P.y,atk:10,boss:1,bz:2});updtele(0.016);const c=L.slice(n2).map(q=>q[0]);run.tele=[];return JSON.stringify({a,b,c})})()`))
 check('feedback 9: an enemy telegraph sounds a cue as it appears, once',cue.a.includes('rise')&&cue.b===0,JSON.stringify(cue))
 check('feedback 9: boss telegraphs get a heavier cue',cue.c.includes('sub')&&cue.c.includes('rise'),JSON.stringify(cue.c))
+const xp=J(await t.ev('JSON.stringify([2,5,10,20,30].map(l=>[need(l),Math.round(10*Math.pow(l,1.6))]))'))
+check('feedback 10: every level needs more XP than before, at least 1.5x from level 5',xp.every(([n,o],i)=>n>o&&(i<1||n>=o*1.5)),JSON.stringify(xp))
+const cap=J(await t.ev(`(()=>{hide();leavehub();newgame('wizard');startfloor();g.picks=CCAP-1;g.pend=2;g.cards=null;levelui();const h1=(document.querySelector('#box').innerText.match(/card [0-9]+ of [0-9]+/)||[''])[0],g0=g.gold;choose(g.cards[0]);const p1=g.picks;if(g.pend>0){g.cards=null;levelui()}const r={cap:CCAP,h1,p1,gold:g.gold-g0,pend:g.pend,cards:cards().length};hide();return JSON.stringify(r)})()`))
+check('feedback 1: the card screen counts toward the cap',cap.h1==='card '+cap.cap+' of '+cap.cap,JSON.stringify(cap))
+check('feedback 1: no more card offers once the cap is reached',cap.p1===cap.cap&&cap.cards===0,JSON.stringify(cap))
+check('feedback 1: level ups past the cap turn into gold',cap.gold>0&&cap.pend===0,JSON.stringify(cap))
+const hr=J(await t.ev(`(()=>{const r=[];for(let k=0;k<=5;k++){g.ab.reach=k;r.push(Math.round(HRNG*hreach()))}delete g.ab.reach;return JSON.stringify({r,card:!!ab.reach&&ab.reach.cl==='priest'&&ab.reach.max===5})})()`))
+check('feedback 3: Wide Grace is a 5 rank priest card',hr.card)
+check('feedback 3: each Wide Grace rank widens healing reach by 20%',hr.r.join()==='280,336,392,448,504,560',hr.r.join())
+check('feedback 3: shared heals, Sanctuary and Beacon all use the healing reach',(src.match(/hreach\(\)/g)||[]).length>=3)
+const car=J(await t.ev(`(()=>{localStorage.removeItem('emberdeep-career');SET.nm='Ash';hide();leavehub();newgame('rogue');startfloor();const e=mkmini('sporeback',P.x+200,P.y);e.xp=1;run.en.push(e);hit(e,3);P.inv=0;P.ifr=0;P.hp=S.mhp;hurt(S.mhp*0.1,{x:P.x-50,y:P.y,atk:10});heal(5);g.kills=7;g.best=4;g.bestcombo=9;enterhub();const ov=ovk,box=document.querySelector('#box').innerText,c1=JSON.parse(localStorage.getItem('emberdeep-career'));hide();leavehub();newgame('wizard');startfloor();g.kills=3;g.best=2;enterhub();const c2=JSON.parse(localStorage.getItem('emberdeep-career'));hide();leavehub();tdstart('wizard');g.kills=50;enterhub();const ov3=ovk,c3=JSON.parse(localStorage.getItem('emberdeep-career'));hide();return JSON.stringify({ov,box,c1,c2,c3,ov3,keys:Object.keys(localStorage).filter(k=>/^emberdeep/.test(k))})})()`))
+check('feedback 5: ending a run shows its stats',car.ov==='sum'&&/Ash/.test(car.box)&&/Kills/.test(car.box),car.ov+' '+car.box.replace(/\s+/g,' ').slice(0,160))
+check('feedback 5: career stats are saved under their own key',!!car.c1&&car.c1.runs===1&&car.c1.kills===7&&car.c1.best===4&&car.c1.combo===9&&car.c1.dmg>0&&car.c1.tk>0&&car.c1.hl>0&&car.c1.cl.rogue.runs===1,JSON.stringify(car.c1))
+check('feedback 5: career stats add up across runs',car.c2.runs===2&&car.c2.kills===10&&car.c2.best===4&&car.c2.cl.wizard.best===2,JSON.stringify(car.c2))
+check('feedback 5: the dummy yard does not count as a run',car.c3.runs===2&&car.c3.kills===10&&car.ov3!=='sum',JSON.stringify(car.c3))
+check('feedback 5: runs still do not save',car.keys.every(k=>['emberdeep-set','emberdeep-meta','emberdeep-rush','emberdeep-career'].includes(k)),car.keys.join(','))
+await t.ev('hubset();0');await t.page.click('[data-go=career]');await sleep(150)
+const cv=await t.page.evaluate(()=>({ov:window.__t.ev('ovk'),tx:document.querySelector('#box').innerText}))
+check('feedback 5: the Hearth settings open a career page',cv.ov==='career'&&/Runs\s+2/.test(cv.tx)&&/Rogue/.test(cv.tx),cv.tx.replace(/\s+/g,' ').slice(0,200))
+await t.ev(`hide();leavehub();newgame('bow');startfloor();ptab='stats';pauseui();0`);const ps=await t.page.evaluate(()=>document.querySelector('#box').innerText)
+check('feedback 5: the pause menu has a stats tab for the current run',/Stats/.test(ps)&&/Damage/.test(ps)&&/Career/.test(ps),ps.replace(/\s+/g,' ').slice(0,160))
+await t.ev('ptab="game";hide();enterhub();hide();0')
 await sleep(300);check('feedback: no JS errors in solo',!t.errs.length,t.errs.slice(0,3).join(' | '))
 }finally{await t.close();server.close()}}
 async function density(){const mf=mainfile();if(!mf){check('feedback 9: sound density compared to main',false,'git show failed');return}const a=await serve(0,mf),b=await serve(),ta=await open(a.url),tb=await open(b.url)
 try{const r0=await storm(ta),r1=await storm(tb)
 check('feedback 9: a hit and kill storm plays at most 60% as many sounds as before',r1.n<=r0.n*0.6,r0.n+' plays before, '+r1.n+' now')
 check('feedback 9: the same storm is at most half as loud in total',r1.v<=r0.v*0.5,r0.v.toFixed(1)+' before, '+r1.v.toFixed(1)+' now')}finally{await ta.close();await tb.close();a.server.close();b.server.close()}}
+async function minis(){const mf=mainfile(),Q=await pool(1),O=mf?await pool(1,mf):null
+try{const o=J(await Q.P[0].ev(MINIPROBE({fl:12,sec:14}))),K=Object.keys(o).filter(k=>k!=='dummy'),bad=f=>K.filter(k=>!f(o[k])).join(',')||'none'
+check('feedback 7: every enemy type shows a telegraph within 4 s',!K.some(k=>!(o[k].first!=null&&o[k].first<=4&&o[k].tel+o[k].nod>0)),'failing: '+bad(q=>q.first!=null&&q.first<=4&&q.tel+q.nod>0))
+check('feedback 7: every enemy type has one heavy hit, 20% of max health or 2.5x its attack',!K.some(k=>!(Math.max(o[k].tpct,o[k].hpct)>=0.2||o[k].sdmg>=2.5||o[k].tdmg>=2.5)),'failing: '+bad(q=>Math.max(q.tpct,q.hpct)>=0.2||q.sdmg>=2.5||q.tdmg>=2.5))
+check('feedback 7: every enemy type lands its attack on a player who stands still',!K.some(k=>o[k].nh+o[k].no<1),'failing: '+bad(q=>q.nh+q.no>0))
+check('feedback 7: no enemy type sprays bullets, at most 4 shots in 14 s',!K.some(k=>o[k].shots>4),K.map(k=>k+':'+o[k].shots).join(' '))
+const ch=K.filter(k=>o[k].dist<=100),kp=K.filter(k=>o[k].dist>=280)
+check('feedback 8: some enemies chase and some keep their distance',ch.length>=4&&kp.length>=4,'chase '+ch.join(',')+' | keep away '+kp.join(','))
+const sp=K.map(k=>o[k].spd).filter(v=>v>0);check('feedback 8: enemy speeds vary at least 3x',Math.max(...sp)>=3*Math.min(...sp),Math.min(...sp)+' to '+Math.max(...sp))
+if(O){const b=J(await O.P[0].ev(MINIPROBE({fl:12,sec:14}))),s0=K.reduce((a,k)=>a+(b[k]?b[k].shots:0),0),s1=K.reduce((a,k)=>a+o[k].shots,0)
+check('feedback 7: enemies fire at least 80% fewer shots than before',s1<=s0*0.2,s0+' shots before, '+s1+' now')}
+for(const t of [Q.P[0],...(O?O.P:[])])check('feedback 7: no JS errors in the enemy probe',!t.errs.length,t.errs.slice(0,2).join(' | '))
+}finally{await Q.close();if(O)await O.close()}}
 async function coop(){const R=await relay({}),{server,url}=await serve(),q='?relay='+encodeURIComponent(R.url),P=[]
 try{for(let i=0;i<3;i++){const t=await open(url,{q,viewport:{width:1100,height:700}});await t.ev(BOT+';0');await t.ev(`SET.cl='${CLS[i]}';0`);P.push(t)}
 await P[0].ev(`nconn(ncode(),1,'Host');0`);await until(async()=>(await P[0].ev('NET&&NET.me'))>0);const code=await P[0].ev('NET.code')
@@ -84,7 +121,22 @@ check('feedback 12: the party starts a run',up);if(!up)return
 await sleep(500);await P[1].page.keyboard.press('Escape');await sleep(200);await P[1].page.click('#rnm',{clickCount:3});await P[1].page.keyboard.type('Fern',{delay:20})
 const inrun=await until(async()=>{for(const t of P)if((await t.ev(`(PL.find(p=>p.id===${me})||{}).nm`))!=='Fern')return false;return true},5000)
 check('feedback 12: a rename in a run updates every player list',inrun,JSON.stringify(await Promise.all(P.map(t=>t.ev(`(PL.find(p=>p.id===${me})||{}).nm`)))))
+const pr=J(await P[0].ev(`(()=>{const pp=PL.find(p=>p.g&&p.g.cl==='priest'),al=PL.find(p=>p!==pp&&p.P),r=[];for(const k of[0,5]){al.P.x=pp.P.x+420;al.P.y=pp.P.y;withp(al,()=>{P.hp=S.mhp*0.5});const h0=al.P.hp;withp(pp,()=>{g.ab.reach=k;P.hp=S.mhp*0.5;P.hfat=0;heal(40)});r.push(Math.round(al.P.hp-h0))}withp(pp,()=>{delete g.ab.reach});return JSON.stringify(r)})()`))
+check('feedback 3: a priest heal reaches an ally 420 px away only with Wide Grace',pr[0]===0&&pr[1]>0,JSON.stringify(pr))
+await P[0].ev(`(()=>{const e=run.en.find(q=>!q.dead);if(e)hit(e,4);hpst()})();0`)
+const ps=await until(async()=>{const r=J(await P[2].ev('JSON.stringify(PST)'));return r&&r.length===3&&r.some(q=>q.nm==='Fern')&&r.some(q=>q.cl==='wizard'&&q.dmg>0)},6000)
+check('feedback 5: party stats reach every player during the run',ps,await P[2].ev('JSON.stringify(PST)'))
+const pst0=await P[1].ev('JSON.stringify(PST)');await P[2].ev(`nsend({k:'pst',L:[{id:1,nm:'<b>x</b>',cl:'wizard',dmg:1e12}]});0`);await sleep(600)
+const pst1=await P[1].ev('JSON.stringify(PST)')
+check('feedback 5: a non-host player cannot fake party stats',pst1===pst0||!/<b>|1000000000000/.test(pst1),pst1)
+await P[0].ev('fadeto(enterhub);0')
+const sm=await until(async()=>{for(const t of P)if((await t.ev('ovk'))!=='sum')return false;return true},8000)
+check('feedback 5: the whole party sees party stats when the run ends',sm,JSON.stringify(await Promise.all(P.map(t=>t.ev('ovk')))))
+const tx=await P[2].page.evaluate(()=>document.querySelector('#box').innerText)
+check('feedback 5: the end screen lists every party member',/Party stats/.test(tx)&&/Fern/.test(tx)&&/Host/.test(tx),tx.replace(/\s+/g,' ').slice(0,200))
+const cc=J(await P[2].ev(`localStorage.getItem('emberdeep-career')`))
+check('feedback 5: each player keeps their own career from a party run',!!cc&&cc.runs===1&&cc.party===1,JSON.stringify(cc))
 for(const [i,t] of P.entries())check('feedback 12: no JS errors on player '+(i+1),!t.errs.length,t.errs.slice(0,2).join(' | '))
 }finally{for(const t of P)try{await t.close()}catch(e){}server.close();R.close()}}
-export async function run(){await solo();await density();await coop()}
-if(process.argv[1]&&process.argv[1].replace(/\\/g,'/').endsWith('tests/feedback.mjs')){const k=setTimeout(()=>{console.log('FAIL feedback suite timed out');process.exit(3)},240000);k.unref();try{await run()}catch(e){check('feedback suite ran',false,String(e&&e.stack||e).slice(0,400))}await closeall();done();process.exit(process.exitCode||0)}
+export async function run(){await solo();await density();await minis();await coop()}
+if(process.argv[1]&&process.argv[1].replace(/\\/g,'/').endsWith('tests/feedback.mjs')){const k=setTimeout(()=>{console.log('FAIL feedback suite timed out');process.exit(3)},420000);k.unref();try{await run()}catch(e){check('feedback suite ran',false,String(e&&e.stack||e).slice(0,400))}await closeall();done();process.exit(process.exitCode||0)}
