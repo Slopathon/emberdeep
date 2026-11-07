@@ -10,7 +10,7 @@ const view=p=>{const Q=run.rm;P.x=p.x-240<Q.x0+40?p.x+240:p.x-240;P.y=p.y;P.vx=P
 const one=(e,R)=>{run.en.length=0;run.en.push(e);e.hide=1;fr();const a=grab(e.x,e.y,R);e.hide=0;fr();const b=grab(e.x,e.y,R);run.en.length=0;return cmp(a,b,1)}
 const BR=[50,48,58,50,54,52,50,62,50,60]
 const mkboss=(zi,x,y)=>{const z=zones[zi],b=mkmob('boss',x,y);b.n=z.boss;b.c=z.ac;b.boss=1;b.bz=zi;b.r=BR[zi];b.cd2=2.2;b.pi=0;b.phs=0;b.act=null;b.sc=1+0.11*zi;b.vs=1+0.05*zi;b.tl=1-0.035*zi;b.cm=1-0.035*zi;if(zi===4)b.sc=b.vs=b.tl=b.cm=1;return b}
-const TL=[['circle',p=>({k:'c',x:p.x,y:p.y,r:70}),80],['line',p=>({k:'l',x:p.x-110,y:p.y,ux:1,uy:0,len:220,w:44}),120],['ring',p=>({k:'w',x:p.x,y:p.y,r:70,w:10}),85],['tile',p=>({k:'r',x:p.x,y:p.y,s:120}),75],['cone',p=>({k:'cone',x:p.x-100,y:p.y,a:0,arc:0.9,len:200}),110],['nod',p=>({k:'c',x:p.x,y:p.y,r:60,nod:1}),70]]
+const TL=[['circle',p=>({k:'c',x:p.x,y:p.y,r:70}),80],['line',p=>({k:'l',x:p.x-110,y:p.y,ux:1,uy:0,len:220,w:44}),120],['ring',p=>({k:'w',x:p.x,y:p.y,r:70,w:10}),85],['tile',p=>({k:'r',x:p.x,y:p.y,s:120}),75],['cone',p=>({k:'cone',x:p.x-100,y:p.y,a:0,arc:0.9,len:200}),110],['nod',p=>({k:'c',x:p.x,y:p.y,r:60,nod:1}),70],['donut',p=>({k:'d',x:p.x,y:p.y,r0:30,r:75}),85]]
 window.__art={zone(zi){setz(zi);const S=spots(),out={mob:{},mini:{},boss:null,tele:{},spots:S.length};if(!S.length){ovk=null;return JSON.stringify(out)}
 const add=(o,k,v)=>(o[k]||(o[k]=[])).push(v);out.boss=[]
 for(const p of S){view(p);for(const k of Object.keys(mt)){if(k==='boss')continue;const e=mkmob(k,p.x,p.y);add(out.mob,k,one(e,e.r*2.2+14))}for(const k of Object.keys(MB)){if(k==='dummy')continue;const e=mkmini(k,p.x,p.y);add(out.mini,k,one(e,e.r*2.2+14))}const e=mkboss(zi,p.x,p.y);out.boss.push(one(e,e.r*2.4+10))}
