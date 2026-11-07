@@ -3,7 +3,7 @@ import {BOT,PARTY} from './bot.mjs'
 import {BUILD} from './afk.mjs'
 const MEASURE=`const F0=window.__F0||(window.__F0=frame);window.__ft=[];frame=function(n){const a=performance.now();F0(n);window.__ft.push(performance.now()-a)};0`,LOOP=`window.__bl&&clearInterval(window.__bl);window.__bl=setInterval(()=>{try{if(run&&!inhub&&g){__bot(1/30);if(typeof PL!=='undefined'&&PL&&PL.length>1)for(const p of PL)if(!p.loc&&!p.gone&&p.P)withp(p,()=>__bot(1/30))}}catch(e){}},33);0`
 const stat=a=>{const s=a.slice().sort((x,y)=>x-y);return{avg:s.reduce((x,y)=>x+y,0)/Math.max(1,s.length),p95:s[Math.floor(s.length*0.95)]||0,n:s.length}}
-async function measure(url,setup,secs=8){const t=await open(url,{viewport:{width:1280,height:800}});await t.ev(BOT+PARTY+';0');await t.ev(setup);await t.ev(LOOP);await sleep(1500);await t.ev(MEASURE);await sleep(secs*1000);const ft=await t.ev('JSON.stringify(window.__ft)');await t.close();return stat(JSON.parse(ft))}
+async function measure(url,setup,secs=8){const t=await open(url,{viewport:{width:1280,height:800}});await t.ev(BOT+PARTY+';0');await t.ev(MEASURE);const t0=Date.now();await t.ev(setup);await t.ev(LOOP);while(Date.now()-t0<20000&&await t.ev("typeof hrp==='undefined'?0:hrp"))await sleep(100);const warm=Date.now()-t0,wf=stat(JSON.parse(await t.ev('JSON.stringify(window.__ft)')));await sleep(1500);await t.ev(MEASURE);await sleep(secs*1000);const ft=await t.ev('JSON.stringify(window.__ft)');await t.close();return {...stat(JSON.parse(ft)),warm,wf}}
 export async function run(){const {server,url}=await serve(),bf=baseline(),res={}
 const solo="leavehub();hide();newgame('wizard');g.fl=12;g.lv=12;g.wep.atk=60;recalc();startfloor();__b.god=1;0"
 res.solo=await measure(url,solo);if(bf){const b=await serve(0,bf);res.base=await measure(b.url,solo);b.server.close()}
@@ -11,7 +11,7 @@ res.party=await measure(url,"leavehub();hide();newgame('knight');__mkparty(['wiz
 res.boss=await measure(url,"leavehub();hide();newgame('knight');__mkparty(['wizard','bow','rogue','priest']);for(const p of PL)withp(p,()=>{g.lv=40;g.wep.atk=400;g.arm.hp=20000;recalc()});g.fl=50;startfloor();__b.god=1;0")
 res.late=await measure(url,`leavehub();hide();newgame('knight');__mkparty(['wizard','bow','rogue','priest']);for(const p of PL)withp(p,()=>{g.fl=95;(${BUILD(95)})();recalc()});g.fl=95;startfloor();__b.god=1;0`,10)
 const f=x=>x.avg.toFixed(2)+'ms avg, '+x.p95.toFixed(2)+'ms p95'
-console.log('info, JS frame cost: solo '+f(res.solo)+(res.base?'; solo before this work '+f(res.base):'')+'; host with 5 players in a room '+f(res.party)+'; host with 5 players at the Hollow King '+f(res.boss)+'; host with 5 built players on floor 95 '+f(res.late))
+console.log('info, JS frame cost: solo '+f(res.solo)+(res.base?'; solo before this work '+f(res.base):'')+'; host with 5 players in a room '+f(res.party)+'; host with 5 players at the Hollow King '+f(res.boss)+'; host with 5 built players on floor 95 '+f(res.late)+'. Measured after the first-sight hero pose warm-up, which took '+res.party.warm+'ms in the floor 12 room ('+f(res.party.wf)+') and '+res.late.warm+'ms on floor 95 ('+f(res.late.wf)+')')
 check('perf: host frame with 5 players stays under 6ms on average',res.party.avg<6&&res.boss.avg<6,f(res.party)+' / '+f(res.boss))
 check('perf: worst case, 5 built players on floor 95, stays under 8ms on average and 16ms at p95',res.late.avg<8&&res.late.p95<16,f(res.late))
 check('perf: solo frame cost close to before',!res.base||res.solo.avg<res.base.avg*1.6+0.6,f(res.solo)+(res.base?' vs '+f(res.base):''))
