@@ -70,7 +70,7 @@ Each zone is one connected dungeon of 9 generated rooms followed by its boss. Ro
 
 Up to 5 players. Ring the Rally Bell in the Hearth to host a party or join one with a 5 letter code or a share link. Everyone walks around the Hearth together, picks a class at the stumps and readies up at The Deep. The run starts when everyone is ready. Nothing saves and everyone starts at level 1.
 
-- The host's game runs the world. Everyone else sends inputs and sees the host's world at 15 snapshots a second, with their own movement predicted locally.
+- The host's game runs the world. Everyone else sends inputs and sees the host's world at 15 snapshots a second. Your own hero moves at once on your screen, and each snapshot replays your inputs since then on top of the host's position, dashes, blinks, knockback and slows included, at the host's game speed, so your hero stays where the host has it instead of snapping back.
 - Gold, gear, gems, potions and chests are instanced. Every player gets the full value of every drop for their own class and only sees their own loot. XP and level are shared.
 - Power and gem picks happen at the door after a clear. The door waits until everyone has picked, or 20 seconds.
 - Foe and boss health scale with party size. A party of one plays exactly like solo.
