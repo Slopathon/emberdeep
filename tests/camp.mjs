@@ -5,7 +5,7 @@ async function press(t,sel){const r=await box(t,sel);if(!r)return false;await t.
 async function until(fn,ms=8000,step=100){const t0=Date.now();for(;;){try{if(await fn())return true}catch(e){}if(Date.now()-t0>ms)return false;await sleep(step)}}
 async function scenario(who,slot){const S=await party(),{P}=S,tag='camp, '+who+' in the door: ';try{await sleep(700);for(const t of P)await t.ev('hub.rdy=1;0');const up=await until(async()=>{for(const t of P)if(!(await t.ev('!!(NET.inrun&&run&&!inhub)')))return false;return true},12000);check(tag+'run starts',up);if(!up)return
 await P[0].ev(`fora(()=>{g.fl=5;g.camp=0;g.prep=0;g.pend=0;g.gold=1e7});startfloor();nfl();0`);await until(async()=>{for(const t of P)if((await t.ev('g.fl'))!==5)return false;return true})
-await P[0].ev(`run.en.length=0;run.spawned=1e9;fora(()=>{P.inv=1e6;g.gold=1e7;g.pend=0;g.gemc=null});0`);await sleep(500)
+await P[0].ev(`run.en.length=0;run.spawned=1e9;run.rsv=[];fora(()=>{P.inv=1e6;g.gold=1e7;g.pend=0;g.gemc=null});0`);await sleep(500)
 await P[0].ev(`{const o=PL.find(p=>p.id===PL[${slot}].id);const q={x:o.P.x,y:o.P.y,to:1};for(let i=0;i<300;i++)nev(['s','x',-1]);run.portal=q;run.portals=[q]};0`)
 const opened=await until(async()=>{for(const t of P)if((await t.ev('ovk'))!=='camp')return false;return true});check(tag+'everyone gets the camp screen',opened);if(!opened)return
 await sleep(400)
