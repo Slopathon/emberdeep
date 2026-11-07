@@ -19,7 +19,8 @@ The Deep is slow and hard on purpose. Fights are won by reading attacks and movi
 - Lower health means slower movement, down to 78% of full speed, and your character looks hurt.
 - Levels need at least 1.5x more XP than before from level 5 on.
 - You can hold at most 40 power cards in a run. Level ups past the cap turn into gold. Card hands are no longer for sale.
-- Auto attack does full damage, but a hero who stands still dies on the first floor and an AFK hero never clears it.
+- Auto attack does full damage, but a hero who stands still dies on the first floor and an AFK hero never clears it. From floor 3 the floor itself drops telegraphed hazards on you, 2.5 times as often once you have stayed in one spot for 4 seconds.
+- The first 9 floors ease in: foes there have less health and their heavy attacks hit softer, rising to full strength by floor 10.
 
 ## Classes
 
@@ -130,7 +131,7 @@ This needs Node 20 or newer and Playwright with Chromium (`npm i playwright` the
 
 `tests/balance/` measures balance with bots of low, mid and high skill, plus auto attack only, standing still and AFK. Bots show relative numbers, so they can't prove a fight feels fair. A full pass takes hours, so it is not part of `node run.mjs`.
 
-- `node balance/matrix.mjs` reads what to test from the game's own tables (classes, items, powers, animals, foes, minibosses, zone foes, bosses and shops) and fails if any entry has no result. Its sections are `cap`, `zone`, `boss`, `entry`, `mb`, `elite`, `fw`, `heal`, `duel`, `builds`, `rush` and `party`. Pick some with `--sec=zone,boss`, set parallel browsers with `--par=10`, test another copy of the game with `--file=`, and rebuild `balance/coverage.md` from saved results with `--report`. The coverage file lists every entry and how it was tested.
+- `node balance/matrix.mjs` reads what to test from the game's own tables (classes, items, powers, animals, foes, minibosses, zone foes, bosses and shops) and fails if any entry has no result. Its sections are `cap`, `zone`, `boss`, `entry`, `mb`, `elite`, `fw`, `heal`, `duel`, `builds`, `rush` and `party`. Pick some with `--sec=zone,boss`, set parallel browsers with `--par=10`, test another copy of the game with `--file=`, limit bot tiers with `--tier=stand,mid`, party makeups with `--mk=priest+knight,same` (classes in wizard, bow, rogue, priest, knight order) and party contexts with `--ctx=boss`, write to another folder under `balance/` with `--out=out/test`, and rebuild `balance/coverage.md` from saved results with `--report`. The coverage file lists every entry and how it was tested.
 - `node balance/pacing.mjs` plays whole runs and records floor clear times, levels per floor, boss fight length and the first death, so a build can be compared to a baseline with `--file=`.
 - `node balance/duel.mjs` plays duel matchups. `node balance/spiral.mjs` checks that the low health slow and knockback don't cause death spirals or push heroes into hazards.
 - Results go to `balance/out/`, which git ignores.
