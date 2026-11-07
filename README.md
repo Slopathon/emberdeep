@@ -15,6 +15,7 @@ The Deep is slow and hard on purpose. Fights are won by reading attacks and movi
 - Every foe type has one heavy attack that hits far harder than anything else it does, with a wind-up pose, a telegraph on the floor and a sound cue.
 - Some foes chase you down and some keep their distance. Their speeds vary more than 3x.
 - Hits push you back. Hazards never do, and knockback never throws you into lava.
+- Touching a miniboss or boss hurts at most once every 1.4 seconds, except the Hollow King.
 - Lower health means slower movement, down to 78% of full speed, and your character looks hurt.
 - Levels need at least 1.5x more XP than before from level 5 on.
 - You can hold at most 40 power cards in a run. Level ups past the cap turn into gold. Card hands are no longer for sale.
@@ -26,7 +27,7 @@ The Deep is slow and hard on purpose. Fights are won by reading attacks and movi
 - Bow, Marksman: hold to draw, release in the sweet spot
 - Rogue, Striker: build Edge up close and spend it before it fades
 - Priest, Support: heals run on Faith, and Faith comes from landing hits. The Wide Grace card widens healing reach by 20% per rank, up to 5 ranks
-- Knight, Vanguard: the shield only stops what you are facing
+- Knight, Vanguard: the shield only stops what you are facing, and a spent block takes 12 seconds to come back
 
 ## Animals
 
@@ -58,7 +59,7 @@ Pick an animal in the Looking Pool by the Hearth. It is free and you can switch 
 - E: use things in the Hearth
 - V: ping (in a party)
 
-Touch controls work on phones too.
+Touch controls work on phones too. HUD panels fade while a foe, shot or telegraph is behind them.
 
 ## Dungeons
 
