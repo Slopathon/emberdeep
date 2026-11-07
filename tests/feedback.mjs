@@ -7,6 +7,7 @@ import {relay} from './relay.mjs'
 import {BOT} from './bot.mjs'
 import {pool} from './balance/pool.mjs'
 import {MINIPROBE} from './balance/probe.mjs'
+import {DUELBOT,duel} from './balance/duel.mjs'
 const J=s=>JSON.parse(s),CLS=['wizard','priest','rogue','bow','knight']
 async function until(fn,ms=8000,step=100){const t0=Date.now();for(;;){try{if(await fn())return true}catch(e){}if(Date.now()-t0>ms)return false;await sleep(step)}}
 const SPY=`(()=>{if(window.__sp)return;window.__sp={n:[],o:smp};smp=(n,v,o)=>{__sp.n.push([n,v,o&&o.pri||0,ac?ac.currentTime:0]);return __sp.o(n,v,o)}})();`
@@ -138,5 +139,100 @@ const cc=J(await P[2].ev(`localStorage.getItem('emberdeep-career')`))
 check('feedback 5: each player keeps their own career from a party run',!!cc&&cc.runs===1&&cc.party===1,JSON.stringify(cc))
 for(const [i,t] of P.entries())check('feedback 12: no JS errors on player '+(i+1),!t.errs.length,t.errs.slice(0,2).join(' | '))
 }finally{for(const t of P)try{await t.close()}catch(e){}server.close();R.close()}}
-export async function run(){await solo();await density();await minis();await coop()}
-if(process.argv[1]&&process.argv[1].replace(/\\/g,'/').endsWith('tests/feedback.mjs')){const k=setTimeout(()=>{console.log('FAIL feedback suite timed out');process.exit(3)},420000);k.unref();try{await run()}catch(e){check('feedback suite ran',false,String(e&&e.stack||e).slice(0,400))}await closeall();done();process.exit(process.exitCode||0)}
+async function doors(){const Q=await pool(1),t=Q.P[0]
+try{const s1=J(await t.ev(`(()=>{__go({cl:'knight',seed:4,tier:'afk',fl:3});__sim(0.4);const fl0=g.fl;run.en.length=0;spawner(0);const q=(run.portals||[run.portal])[0],o={open:!!run.portal};P.x=q.x;P.y=q.y;__sim(1);o.stay=g.fl===fl0&&!(fadeS&&!fadeS.done);const en=run.ent,a=en?Math.atan2(en.sy-q.y,en.sx-q.x):Math.PI;P.x=q.x+Math.cos(a)*150;P.y=q.y+Math.sin(a)*150;__sim(0.3);P.x=q.x;P.y=q.y;__sim(3);o.went=g.fl===fl0+1;__sim(1);run.en.length=0;spawner(0);const q2=(run.portals||[run.portal])[0];P.x=q2.x;P.y=q2.y;__sim(1);o.stay2=g.fl===fl0+1;__sim(1.5);o.dwell=g.fl===fl0+2;return JSON.stringify(o)})()`))
+check('feedback 2: a door that opens under the player waits until they step into it',s1.open&&s1.stay&&s1.went,JSON.stringify(s1))
+check('feedback 2: a player who stays on an open door goes through after a short wait instead of getting stuck',s1.stay2&&s1.dwell,JSON.stringify(s1))
+const s2=J(await t.ev(`(()=>{__go({cl:'knight',seed:3,tier:'afk',fl:10});__sim(2);P.inv=999;const b=run.en.find(e=>e.boss),o={boss:!!b};if(!b)return JSON.stringify(o);for(let i=0;i<40&&!run.portal;i++){P.x=b.x;P.y=b.y;b.shield=0;b.hide=0;b.dspd=1;b.hfl=0;b.dsp=0;hit(b,1e9);if(!run.portal)__sim(0.25)}const q=run.portal;o.open=!!q;o.dw=typeof run.dw==='number';if(!q)return JSON.stringify(o);__sim(1);o.stay=!g.camp&&g.fl===10;P.x=q.x+160;P.y=q.y;__sim(0.3);P.x=q.x;P.y=q.y;__sim(2);o.went=!!g.camp||g.fl===11;return JSON.stringify(o)})()`))
+check('feedback 2: the boss portal starts the door timer and waits for the player to step in',s2.boss&&s2.open&&s2.dw&&s2.stay&&s2.went,JSON.stringify(s2))
+check('feedback 2: no JS errors in the solo door checks',!t.errs.length,t.errs.slice(0,3).join(' | '))}finally{await Q.close()}
+const R=await relay({delay:60}),{server,url}=await serve(),q='?relay='+encodeURIComponent(R.url),P=[]
+try{for(let i=0;i<3;i++){const t=await open(url,{q,viewport:{width:1000,height:640}});await t.ev(BOT+';0');await t.ev(`SET.cl='${CLS[i]}';0`);P.push(t)}
+await P[0].ev(`nconn(ncode(),1,'Host');0`);await until(async()=>(await P[0].ev('NET&&NET.me'))>0);const code=await P[0].ev('NET.code')
+for(let i=1;i<3;i++){await P[i].ev(`nconn('${code}',0,'P${i+1}');0`);await sleep(150)}
+const met=await until(async()=>{for(const t of P)if((await t.ev('NET&&NET.me?Object.keys(NET.peers).length:0'))!==2)return false;return true},10000)
+for(const t of P)await t.ev('hub.rdy=1;0')
+const up=met&&await until(async()=>{for(const t of P)if(!(await t.ev('!!(NET.inrun&&run&&!inhub)')))return false;return true},15000)
+check('feedback 2: a party of three starts a run at 120ms lag',up);if(!up)return
+await sleep(1500)
+const st=async()=>Promise.all(P.map(t=>t.ev(`JSON.stringify({fl:g&&g.fl,camp:g&&g.camp||0,P:P?[Math.round(P.x),Math.round(P.y)]:null,pend:g&&g.pend})`).then(J)))
+const walk=async(done,ms)=>{const door=J(await P[2].ev(`JSON.stringify((run.portals||[run.portal])[0])`)),t0=Date.now(),o={pick:'',me:'',seen:0,went:0};await P[2].ev('hide();0')
+for(;Date.now()-t0<ms;){const s=await st();if(done(s)){o.went=Date.now();break}await P[2].ev(`(()=>{const v=__dir(${door.x},${door.y}),l=Math.hypot(v[0],v[1])||1,x=v[0]/l,y=v[1]/l;key.w=y<-0.3;key.s=y>0.3;key.a=x<-0.3;key.d=x>0.3;0})()`)
+if(!o.seen&&await P[0].ev('!!run.dh'))o.seen=Date.now()
+const a=await P[0].ev('(document.getElementById("dwait")||{}).textContent||""'),b=await P[2].ev('dmsg()');if(/at the door/.test(a))o.pick=a;if(/at the door/.test(b))o.me=b;await sleep(100)}
+await P[2].ev('key.w=key.s=key.a=key.d=false;0');o.wait=o.went&&o.seen?(o.went-o.seen)/1000:null;return o}
+await P[0].ev(`(()=>{for(const e of run.en)e.dead=1;for(const p of PL)p.g.pend=p.id===PL[2].id?0:1;0})()`)
+await until(async()=>!!(await P[2].ev('!!run.portal')),6000)
+const w1=await walk(s=>s.every(x=>x.fl===2),45000)
+check('feedback 2: a player still picking cards sees who is at the door and the countdown',/P3 is at the door/.test(w1.pick)&&/leaving in [0-9]+s/.test(w1.pick),w1.pick)
+check('feedback 2: the player at the door sees who the party is waiting on',/You are at the door/.test(w1.me)&&/Host/.test(w1.me),w1.me)
+check('feedback 2: the party leaves within 10s of a player reaching the door at 120ms lag',w1.went>0&&w1.wait!=null&&w1.wait<=13,JSON.stringify(w1))
+await sleep(1500)
+const s3=await st(),hp=J(await P[0].ev(`JSON.stringify(PL.map(p=>[p.id,Math.round(p.P.x),Math.round(p.P.y),inobs(p.P.x,p.P.y)]))`)),ids=await Promise.all(P.map(t=>t.ev('LOC.id')))
+const off=s3.map((x,i)=>{const h=hp.find(r=>r[0]===ids[i]);return h&&x.P?Math.round(Math.hypot(h[1]-x.P[0],h[2]-x.P[1])):999})
+check('feedback 2: every player lands on the next floor where the host has them, with picks resolved',s3.every(x=>x.fl===2&&x.pend===0)&&off.every(d=>d<=48)&&hp.every(r=>!r[3]),JSON.stringify({s3,off}))
+await P[0].ev('(()=>{for(const p of PL)p.g.fl=9;for(const e of run.en)e.dead=1;0})()');await until(async()=>!!(await P[0].ev('!!run.portal')),6000);await P[0].ev('withp(LOC,descend);0')
+await until(async()=>{for(const t of P)if((await t.ev('g&&g.fl'))!==10||(await t.ev('!!(fadeS&&!fadeS.done)')))return false;return true},15000);await sleep(1200)
+await P[0].ev('fora(()=>{P.inv=999});withp(LOC,descend);0')
+const fight=await until(async()=>{for(const t of P)if(!(await t.ev('!!(run&&!run.prep&&run.en.some(e=>e.boss))')))return false;return true},15000)
+await P[0].ev(`(()=>{for(const p of PL)p.g.pend=p.id===PL[2].id?0:1;0})()`)
+const down=fight&&await until(async()=>{await P[0].ev('(()=>{fora(()=>{P.inv=99});for(const e of run.en)if(e.boss&&!e.dead){e.shield=0;e.hide=0;e.dspd=1;e.hfl=0;e.dsp=0;hit(e,1e9)}0})()');return !!(await P[2].ev('!!run.portal'))},20000)
+const w2=down?await walk(s=>s.every(x=>x.camp),45000):{}
+check('feedback 2: after a boss the party is not stuck at the portal when someone is still picking',down&&w2.went>0&&w2.wait!=null&&w2.wait<=13,JSON.stringify({fight,down,w2}))
+for(const [i,t] of P.entries())check('feedback 2: no JS errors on door player '+(i+1),!t.errs.length,t.errs.slice(0,2).join(' | '))
+}finally{for(const t of P)try{await t.close()}catch(e){}server.close();R.close()}}
+async function duels(){const Q=await pool(1),t=Q.P[0]
+try{await t.ev(DUELBOT+';0')
+const ru=J(await t.ev(`(()=>{__duel({cls:['knight','priest','wizard','rogue'],teams:[1,1,2,2],seed:5,tier:'afk'});const [a,b,c,d]=PL,px=id=>run.dp.find(e=>e.pv===id),o={fl:g.fl,boss:run.en.some(e=>e.boss&&!e.pv),np:run.dp.length,side:Math.sign(c.P.x-a.P.x)};const hp=()=>PL.map(p=>Math.round(p.P.hp));for(const p of PL){p.P.inv=0;p.P.ifr=0}const h0=hp();wps(a,()=>{hit(px(b.id),S.atk*6);hit(px(a.id),S.atk*6)});const h1=hp();wps(a,()=>hit(px(c.id),S.atk*6));const h2=hp();o.friendly=h1[0]===h0[0]&&h1[1]===h0[1];o.foe=h2[2]<h1[2];c.P.hp=1;d.P.hp=d.S.mhp*0.5;b.P.hp=b.S.mhp*0.5;const hd=d.P.hp,hb=b.P.hp;withp(b,()=>{const m=P;P.x=d.P.x-30;P.y=d.P.y;heal(40)});o.healfoe=Math.round(d.P.hp-hd);o.healown=Math.round(b.P.hp-hb);for(const p of PL)p.P.inv=0;wps(a,()=>{for(let i=0;i<40&&!c.down;i++){c.P.inv=0;c.P.ifr=0;hit(px(c.id),S.atk*8)}});o.cdown=c.down;a.P.x=c.P.x+20;a.P.y=c.P.y;__sim(4);o.foerev=c.down;d.P.x=c.P.x+20;d.P.y=c.P.y;a.P.x=c.P.x+400;__sim(4);o.teamrev=!c.down;o.errs=0;return JSON.stringify(o)})()`))
+check('feedback 4: a duel builds an arena with no boss and sides facing each other',ru.fl%10===0&&!ru.boss&&ru.np===4&&ru.side===1,JSON.stringify(ru))
+check('feedback 4: duel hits skip yourself and teammates and land on the other team',ru.friendly&&ru.foe,JSON.stringify(ru))
+check('feedback 4: priest heals reach teammates only in a duel',ru.healown>0&&ru.healfoe===0,JSON.stringify(ru))
+check('feedback 4: only a teammate can revive a downed duelist',ru.cdown===1&&ru.foerev===1&&ru.teamrev,JSON.stringify(ru))
+const af=[];for(const cl of CLS){const r=await duel(t,{cls:[cl,cl],teams:[1,2],seed:11,tiers:['afk','mid']},200);af.push(cl+':'+r.w)}
+check('feedback 4: a fully AFK duelist loses to a playing one in every class',af.every(x=>x.endsWith(':2')),af.join(' '))
+const st=await duel(t,{cls:['knight','wizard'],teams:[1,2],seed:3,tiers:['stand','stand']},220)
+check('feedback 4: a duel where nobody fights still ends',st.w!=null&&st.t<=(await t.ev('DCAP'))+2,JSON.stringify(st))
+check('feedback 4: no JS errors in local duels',!t.errs.length,t.errs.slice(0,3).join(' | '))}finally{await Q.close()}
+const R=await relay({delay:60}),{server,url}=await serve(),q='?relay='+encodeURIComponent(R.url),P=[]
+try{for(let i=0;i<2;i++){const t=await open(url,{q,viewport:{width:1000,height:640}});await t.ev(BOT+';0');await t.ev(`SET.cl='${['knight','wizard'][i]}';0`);P.push(t)}
+await P[0].ev(`nconn(ncode(),1,'Host');0`);await until(async()=>(await P[0].ev('NET&&NET.me'))>0);const code=await P[0].ev('NET.code')
+await P[1].ev(`nconn('${code}',0,'Moss');0`);const met=await until(async()=>{for(const t of P)if((await t.ev('NET&&NET.me?Object.keys(NET.peers).length:0'))!==1)return false;return true},10000)
+check('feedback 4: two players form a party for a duel',met);if(!met)return
+await P[0].ev('partyui();0');await P[0].page.click('[data-go=pduel]');await sleep(300)
+const hb=await P[0].page.evaluate(()=>document.querySelector('#box').innerText)
+const seen=await until(async()=>!!(await P[1].ev('!!(NET.du&&NET.du.on)')),4000);await P[1].ev('partyui();0');const cb=await P[1].page.evaluate(()=>document.querySelector('#box').innerText)
+check('feedback 4: the host turns on a duel and the other player sees the teams',/Duel on/.test(hb)&&/team 2/.test(hb)&&seen&&/Duel:/.test(cb)&&/team 1/.test(cb),hb.replace(/\s+/g,' ').slice(0,200)+' || '+cb.replace(/\s+/g,' ').slice(0,200))
+for(const t of P)await t.ev('hide();hub.rdy=1;0')
+const up=await until(async()=>{for(const t of P)if(!(await t.ev('!!(NET.inrun&&run&&!inhub&&run.duel)')))return false;return true},15000)
+check('feedback 4: readying up starts the duel for both players',up);if(!up)return
+await sleep(1200)
+const cv=J(await P[1].ev('JSON.stringify({pv:run.en.some(e=>e.pv),du:DU,fl:g.fl})')),hv=J(await P[0].ev('JSON.stringify({np:run.dp.length,du:DU})'))
+check('feedback 4: the host runs the duel and the hidden targets never reach the client',hv.np===2&&!cv.pv&&JSON.stringify(cv.du)===JSON.stringify(hv.du),JSON.stringify({cv,hv}))
+const mid=await P[1].ev('NET.me'),h0=await P[1].ev('Math.round(P.hp)')
+await P[0].ev(`(()=>{const a=PL.find(p=>p.loc),e=run.dp.find(x=>x.pv===${mid});const v=PL.find(p=>p.id===${mid});v.P.inv=0;v.P.ifr=0;wps(a,()=>hit(e,S.atk*4));0})()`)
+const hit1=await until(async()=>(await P[1].ev('Math.round(P.hp)'))<h0,4000)
+check('feedback 4: a duel hit from the host lowers the other player health on their screen',hit1)
+await P[0].ev(`(()=>{const a=PL.find(p=>p.loc),e=run.dp.find(x=>x.pv===${mid}),v=PL.find(p=>p.id===${mid});wps(a,()=>{for(let i=0;i<60&&!v.down;i++){v.P.inv=0;v.P.ifr=0;hit(e,S.atk*8)}});0})()`)
+const won=await until(async()=>/Host wins/.test(await P[1].ev('banner?banner.t:""')),5000)
+check('feedback 4: the winner is announced to every player',won,await P[1].ev('banner?banner.t:""'))
+const back=await until(async()=>{for(const t of P)if((await t.ev('ovk'))!=='sum')return false;return true},12000)
+const tx=back?await P[1].page.evaluate(()=>document.querySelector('#box').innerText):''
+check('feedback 4: both players return to the Hearth with the duel result and party stats',back&&/Host wins/.test(tx)&&/Moss/.test(tx),tx.replace(/\s+/g,' ').slice(0,200))
+const cc=J(await P[1].ev(`localStorage.getItem('emberdeep-career')||'null'`))
+check('feedback 4: a duel does not count as a run in career stats',!cc||!cc.runs,JSON.stringify(cc))
+for(const [i,t] of P.entries())check('feedback 4: no JS errors on duel player '+(i+1),!t.errs.length,t.errs.slice(0,2).join(' | '))
+}finally{for(const t of P)try{await t.close()}catch(e){}server.close();R.close()}}
+async function feel(){const Q=await pool(1),t=Q.P[0]
+try{await t.ev('au();0');await until(async()=>J(await t.ev('JSON.stringify(!!(SB&&ac))')),15000);const o=J(await t.ev(`(()=>{const sf0=sfx;__go({cl:'knight',seed:3,tier:'afk',fl:2});sfx=sf0;__sim(0.5);run.en.length=0;run.spawned=1e9;run.tele=[];run.shots=[];P.inv=999;const L=[],sm0=smp;smp=(n,v,q)=>{L.push([n,v,q&&q.pri||0,0,q&&q.r||1]);return sm0(n,v,q)};const o={},clr=()=>{for(const q in sl)delete sl[q]},mob=(dx,dy,hp)=>{const e=mkmob('grub',P.x+dx,P.y+dy);e.hp=e.mhp=hp;e.wake=0;e.spd=0;run.en.push(e);return e};const e=mob(80,0,1e9),x0=e.x,y0=e.y,n0=pt.length;hit(e,1);o.jolt=[e.jh>0,Math.round(e.jx*10)/10,Math.round(e.jy*10)/10,e.x-x0,e.y-y0];const sp=pt.slice(n0);o.sp=sp.length;o.cone=sp.filter(q=>Math.cos(Math.atan2(q.vy,q.vx))>0.8).length;run.en.length=0;run.combo=0;run.combot=0;run.mkt=[];const kr=()=>{clr();const n=L.length;const m=mob(60,0,1);hit(m,1e6);__sim(0.6);const q=L.slice(n).filter(q=>q[0]==='thuds');return q.length?[Math.round((q[0][4]||1)*1000)/1000,q[0][1]]:null};const r=[];for(let i=0;i<6;i++)r.push(kr());run.combot=0.01;__sim(0.2);o.reset=kr();o.r=r;run.en.length=0;run.mkt=[];tx.length=0;const n1=L.length;for(let i=0;i<2;i++){clr();hit(mob(60+i*10,0,1),1e6)}o.two=tx.some(q=>Object.values(q).includes('TRIPLE'));__sim(0.6);run.mkt=[];const sx=P.x+60,sy=P.y-100,g0=flc.getContext('2d').getImageData(sx-3,sy-3,6,6).data.join();for(let i=0;i<3;i++){clr();hit(mob(60,-100,1),1e6)}o.three=tx.some(q=>Object.values(q).includes('TRIPLE'));o.bell=L.slice(n1).some(q=>q[0]==='bell');o.dcn=run.dcn;const g1=flc.getContext('2d').getImageData(sx-3,sy-3,6,6).data.join();__sim(5);const g2=flc.getContext('2d').getImageData(sx-3,sy-3,6,6).data.join();o.dec=[g0!==g1,g1===g2];run.en.length=0;g.fl++;startfloor();o.dcn2=run.dcn||0;P.lt=run.t;P.la=0;drawp(performance.now());o.lk=Math.round(P.lx*10)/10;P.lt=run.t-1;drawp(performance.now());o.lk0=Math.round(P.lx*10)/10;const T=[],tr=cx.translate;cx.translate=function(x,y){T.push(x);return tr.call(cx,x,y)};const rec=cl=>{T.length=0;cx.save();drawweapon(cl,0,0,39,0,0.5,'#fff',performance.now(),0);cx.restore();return Math.round(T[1]*10)/10};o.rc={bow:rec('bow'),wizard:rec('wizard')};cx.translate=tr;smp=sm0;return JSON.stringify(o)})()`))
+check('feel: a hit jolts the enemy away from the player without moving its hitbox',o.jolt[0]&&o.jolt[1]>=4&&Math.abs(o.jolt[2])<0.5&&o.jolt[3]===0&&o.jolt[4]===0,JSON.stringify(o.jolt))
+check('feel: hit sparks spray along the attack direction',o.sp>=3&&o.cone===o.sp,o.cone+' of '+o.sp)
+const rr=o.r.map(x=>x&&x[0]),vv=o.r.map(x=>x&&x[1])
+check('feel: kill pitch rises through a combo without getting louder',rr.every(x=>x)&&rr.every((x,i)=>!i||x>rr[i-1])&&Math.max(...vv)-Math.min(...vv)<1e-6,JSON.stringify(o.r))
+check('feel: kill pitch resets when the combo ends',o.reset&&o.reset[0]===rr[0],JSON.stringify(o.reset))
+check('feel: three kills within half a second get a callout and a sound, two do not',o.three&&o.bell&&!o.two,JSON.stringify({two:o.two,three:o.three,bell:o.bell}))
+check('feel: kills leave marks on the floor that stay and clear on the next floor',o.dec[0]&&o.dec[1]&&o.dcn>=3&&o.dcn2===0,JSON.stringify({dec:o.dec,dcn:o.dcn,dcn2:o.dcn2}))
+check('feel: the knight lunges into a swing and settles after',o.lk>=5&&o.lk0===0,o.lk+' then '+o.lk0)
+check('feel: bows recoil harder than other weapons',o.rc.bow<=o.rc.wizard*2.5,JSON.stringify(o.rc))
+check('feel: no JS errors',!t.errs.length,t.errs.slice(0,3).join(' | '))}finally{await Q.close()}}
+export async function run(only){const L={solo,density,minis,coop,doors,duels,feel};for(const k in L)if(!only||!only.length||only.includes(k))await L[k]()}
+if(process.argv[1]&&process.argv[1].replace(/\\/g,'/').endsWith('tests/feedback.mjs')){const k=setTimeout(()=>{console.log('FAIL feedback suite timed out');process.exit(3)},600000);k.unref();try{await run(process.argv.slice(2))}catch(e){check('feedback suite ran',false,String(e&&e.stack||e).slice(0,400))}await closeall();done();process.exit(process.exitCode||0)}
