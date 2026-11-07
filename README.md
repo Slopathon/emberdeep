@@ -63,7 +63,7 @@ Touch controls work on phones too. HUD panels fade while a foe, shot or telegrap
 
 ## Dungeons
 
-Each zone is one connected dungeon of 9 generated rooms followed by its boss. Rooms come from 30 layout archetypes with mirroring, rotation, size jitter, alcoves and zone props, built from a run seed so every player in a party gets the same dungeon. Two or three forks per zone let you pick between two rooms on the same floor. The map in the top right shows the zone, the room you are in, the forks and the boss.
+Each zone is one connected dungeon of 9 generated rooms followed by its boss. Rooms come from 34 layout archetypes in four size classes (tight arenas about 1600 by 1100, mid rooms about 2100 by 1350, long halls about 2900 by 1100 and big caverns about 2600 by 1800) with mirroring, rotation, size jitter, alcoves and zone props, built from a run seed so every player in a party gets the same dungeon. Four archetypes cut chasms crossed on bridges: shots fly over them, bodies cannot. Foes wait in up to three groups spread through the room and wake when they see you close by, when hurt, or after a while, and one may guard the chest. Some rooms hold one or two of their own roster foes back and send them through a side opening once the first foes are nearly down; the foes left counter includes them. Two or three forks per zone let you pick between two rooms on the same floor. The map in the top right shows the zone, the room you are in, the forks and the boss.
 
 ## Co-op
 
