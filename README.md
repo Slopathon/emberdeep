@@ -16,7 +16,7 @@ The Deep is slow and hard on purpose. Fights are won by reading attacks and movi
 - Some foes chase you down and some keep their distance. Their speeds vary more than 3x.
 - Hits push you back. Hazards never do, and knockback never throws you into lava.
 - Touching a miniboss or boss hurts at most once every 1.4 seconds, except the Hollow King.
-- Lower health means slower movement, down to 78% of full speed, and your character looks hurt: a plaster under 60% health, bandages, a hunch and a limp under 35%. Getting hit makes your hero recoil away from the blow with a short pale flash.
+- Lower health means slower movement, down to 78% of full speed, and your character looks hurt: a plaster or torn gear under 60% health, bandages or heavier damage, a hunch and a limp under 35%. Getting hit makes your hero recoil away from the blow with a short pale flash.
 - Levels need at least 1.5x more XP than before from level 5 on.
 - You can hold at most 40 power cards in a run. Level ups past the cap turn into gold. Card hands are no longer for sale.
 - Auto attack does full damage, but a hero who stands still dies on the first floor and an AFK hero never clears it. From floor 3 the floor itself drops telegraphed hazards on you, 2.5 times as often once you have stayed in one spot for 4 seconds.
@@ -138,11 +138,11 @@ This needs Node 20 or newer and Playwright with Chromium (`npm i playwright` the
 
 ## Editing
 
-There is no build step. Change `index.html` and refresh the page. Fonts load from Google Fonts, and the whole game is in that file. The icons, share image, web manifest and the two sound files sit beside it.
+There is no build step. Change `index.html` and refresh the page. Fonts load from Google Fonts, and the whole game is in that file. The icons, share image, web manifest, the two sound files and the knight and rogue sprite sheet (`heroes.png` with its frame map `heroes.json`) sit beside it.
 
 ## Credits
 
-All art is original. Heroes, animals, foes, bosses, effects, rooms, the Hearth and the UI icons are drawn by code in `index.html` with ink outlines and flat color, and cached as images while the game runs.
+All art is original. The knight and rogue are pixel art in `heroes.png`, with fur and accent colors swapped in at load. The other heroes, animals, foes, bosses, effects, rooms, the Hearth and the UI icons are drawn by code in `index.html` with ink outlines and flat color, and cached as images while the game runs.
 
 Sound effects are under CC0. A few, like the wizard bolt, wind and the campfire, are synthesized. The rest come from:
 
