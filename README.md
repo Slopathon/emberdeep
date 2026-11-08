@@ -55,7 +55,7 @@ Pick an animal in the Looking Pool by the Hearth. It is free and you can switch 
 - R: animal power
 - T: auto attack
 - Tab: gear and powers
-- Q and E: zoom
+- Q and E, or the mouse wheel: zoom
 - Esc: pause, run stats and your name (up to 12 characters)
 - E: use things in the Hearth
 - V: ping (in a party)
@@ -138,11 +138,11 @@ This needs Node 20 or newer and Playwright with Chromium (`npm i playwright` the
 
 ## Editing
 
-There is no build step. Change `index.html` and refresh the page. Fonts load from Google Fonts, and the whole game is in that file. The icons, share image, web manifest, the two sound files and the knight and rogue sprite sheet (`heroes.png` with its frame map `heroes.json`) sit beside it.
+There is no build step. Change `index.html` and refresh the page. Fonts load from Google Fonts, and the whole game is in that file. The icons, share image, web manifest, the two sound files and the hero sprite sheet (`heroes.png` with its frame map `heroes.json`) sit beside it.
 
 ## Credits
 
-All art is original. The knight and rogue are pixel art in `heroes.png`, with fur and accent colors swapped in at load. The other heroes, animals, foes, bosses, effects, rooms, the Hearth and the UI icons are drawn by code in `index.html` with ink outlines and flat color, and cached as images while the game runs.
+All art is original. All five heroes are pixel art in `heroes.png`, with fur and accent colors swapped in at load. Animals, foes, bosses, effects, rooms, the Hearth and the UI icons are drawn by code in `index.html` with ink outlines and flat color, and cached as images while the game runs.
 
 Sound effects are under CC0. A few, like the wizard bolt, wind and the campfire, are synthesized. The rest come from:
 
