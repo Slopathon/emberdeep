@@ -343,7 +343,7 @@ function lobui(){if(ovk!=='party')return;const e=$('#plist');if(!e)return;const 
 function ntok(){try{let t=sessionStorage.getItem('emberdeep-tok');if(!t){t=Array.from(crypto.getRandomValues(new Uint8Array(9)),b=>b.toString(16).padStart(2,'0')).join('');sessionStorage.setItem('emberdeep-tok',t)}return t}catch(e){return'x'+Math.random()}}
 function ncode(){return Array.from(crypto.getRandomValues(new Uint8Array(5)),b=>CODEA[b%CODEA.length]).join('')}
 const NRP=new Set(['cst','tgp','tgn','an','ha','ph','hit','_s','fn','ix','ox','oy','tx','ty','ts','ns']),nrep=function(k,v){if(NRP.has(k)||typeof v==='function'||v instanceof Set)return undefined;if(typeof v==='number')return Math.round(v*10)/10;if(k!==''&&v&&typeof v==='object'&&v.mhp!=null&&v.id!=null&&!Array.isArray(v))return{$e:v.id};return v}
-const ECOLD=new Set(['x','y','hp','fl','z','fa','cd','ot','bt2','t1','t2','t3','t4','t5','wt','kx','ky','spd','atk','gold','side','stim','cd2','ht','slz','sc','vs','tl','cm']),erep=function(k,v){if(this&&this.mhp!=null&&ECOLD.has(k))return undefined;return nrep.call(this,k,v)}
+const ECOLD=new Set(['x','y','hp','fl','z','fa','cd','ot','bt2','t1','t2','t3','t4','t5','wt','kx','ky','spd','atk','gold','side','stim','cd2','ht','slz','sc','vs','tl','cm','jh','jx','jy']),erep=function(k,v){if(this&&this.mhp!=null&&ECOLD.has(k))return undefined;return nrep.call(this,k,v)}
 const PHOT=['cd','bcd','dcd','x','y','vx','vy','hp','fl','rec','draw','adr','inv','dt','dch','sh','gd','edge','faith','pray','angel','spin','chg','ward','r','slowt','acd','anf','hx'],RVIS=['z','blades','orba','decoy','vort','combo','pets']
 function nsend(d,to){const N=NET;if(!N||!N.ws||N.ws.readyState!==1)return;const m=JSON.stringify(to==null?{d}:{to,d});N.bo+=m.length;N.ws.send(m)}
 const ctlev=e=>e[0]==='camp'||e[0]==='win'||e[0]==='wipe'
@@ -1388,7 +1388,7 @@ function flames(){ki();for(const c of run.fire){cx.globalAlpha=Math.min(1,c.t)*0
 function debris(){ki();for(const d of run.debris||[])wput('plate',d.s,0,d.c,d.x,d.y,d.a)}
 function warm(k){const b=MB[k];if(b&&des[k])for(let t=0;t<4;t++)wf(get(k,b.r,t,0,b.c));gwm();sdm()}
 return{des,get,mob,mini,ms,top,enbar,tset,tdraw,shots,flames,debris,warm}})()
-function drawen(e,now){if(e.hide||e.pv)return;const k=e.jh?1-(performance.now()-e.jh)/140:0;if(k<=0)return drawen0(e,now);const q=e.boss?0.6:1;cx.save();cx.translate(e.x+e.jx*k,e.y+e.jy*k);cx.scale(1+0.16*k*q,1-0.13*k*q);cx.translate(-e.x,-e.y);drawen0(e,now);cx.restore()}
+function drawen(e,now){if(e.hide||e.pv)return;const k=e.jh?1-(performance.now()-e.jh)/140:0;if(k<=0||k>1)return drawen0(e,now);const q=e.boss?0.6:1;cx.save();cx.translate(e.x+e.jx*k,e.y+e.jy*k);cx.scale(1+0.16*k*q,1-0.13*k*q);cx.translate(-e.x,-e.y);drawen0(e,now);cx.restore()}
 function drawen0(e,now){if(e.mini){drawmini(e,now);return}const x=e.x,y=e.y,s=e.r*2.9;if(e.boss){drawboss(e,x,y,e.fl>0?'#fff':e.c,now);drawen2(e,x,y,s);return}enart.mob(e,now);drawen2(e,x,y,s)}
 function drawen2(e,x,y,s){const dense=run.en.length>140
 if(dense&&!e.boss&&!e.elite){if(e.hp<e.mhp){cx.fillStyle='rgba(0,0,0,.82)';cx.fillRect(e.x-e.r-1,e.y-e.r-9,e.r*2+2,5);cx.fillStyle='#efe2bf';cx.fillRect(e.x-e.r,e.y-e.r-8,e.r*2*Math.max(0,e.hp/e.mhp),3)}return}
