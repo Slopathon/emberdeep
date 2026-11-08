@@ -55,16 +55,9 @@ Pick an animal in the Looking Pool by the Hearth. It is free and you can switch 
 - F: potion
 - R: animal power
 - T: auto attack
-<<<<<<< HEAD
 - Tab or I: gear and powers
 - Esc or P: pause, run stats and your name (up to 12 characters)
 - E or Enter: use things in the Hearth and sit by campfires
-=======
-- Tab: gear and powers
-- Q and E, or the mouse wheel: zoom
-- Esc: pause, run stats and your name (up to 12 characters)
-- E: use things in the Hearth
->>>>>>> origin/rework
 - V: ping (in a party)
 - M: mute
 
