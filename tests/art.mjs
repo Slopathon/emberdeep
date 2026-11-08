@@ -49,6 +49,8 @@ const f=(L,bad,lab)=>(L.filter(bad).length?L.filter(bad).length+' of '+L.length+
 check('art: walk cycle frames differ, the most different pair of walk frames overlaps under 80%',walk.every(x=>x.v<0.8),f(walk,x=>x.v>=0.8))
 check('art: the attack pose changes at least 12% of the hero',atk.every(x=>x.v>=0.12),f(atk,x=>x.v<0.12))
 check('art: the hurt pose changes at least 12% of the hero',hurt.every(x=>x.v>=0.12),f(hurt,x=>x.v<0.12))
+const fk=JSON.parse(await t.ev(`new Promise(res=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=i.width;c.height=i.height;c.getContext('2d').drawImage(i,0,0);const a=c.getContext('2d').getImageData(0,0,c.width,c.height).data,b=pxflc(c,1).getContext('2d').getImageData(0,0,c.width,c.height).data;let ink=0,kept=0,cl=0,fl=0;for(let k=0;k<a.length;k+=4){if(a[k+3]<200)continue;const same=a[k]===b[k]&&a[k+1]===b[k+1]&&a[k+2]===b[k+2];if(a[k]*0.3+a[k+1]*0.59+a[k+2]*0.11<46){ink++;kept+=same}else{cl++;fl+=!same}}res(JSON.stringify({ink:kept/ink,cloth:fl/cl}))};i.onerror=()=>res('{}');i.src='heroes.png'})`))
+check('art: the hit flash on the hero atlas keeps every ink outline pixel and tints the rest',fk.ink===1&&fk.cloth>0.9,JSON.stringify(fk))
 check('art: the down pose has a different silhouette, under 80% overlap with standing',down.every(x=>x.v<0.8),f(down,x=>x.v>=0.8))
 check('art: every class and animal looks damaged at 20% health, at least 8% of the hero changes',dmg.every(x=>x.v>=0.08),f(dmg.slice().sort((a,b)=>a.v-b.v),x=>x.v<0.08,6))
 const W=JSON.parse(await t.ev('__art.windtest()')),WK=Object.keys(W),wl=(bad,v)=>{const L=WK.filter(bad);return(L.length?L.length+' of '+WK.length+' fail: '+L:'all '+WK.length+' pass')+', '+WK.map(k=>k+' '+v(W[k])).join(', ')};res.wind=W
